@@ -6,9 +6,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.net.InetAddress;
+import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
+
 
 @SpringBootApplication
 public class UrbanKashiPosApplication {
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Kolkata"));
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(UrbanKashiPosApplication.class, args);
@@ -31,3 +39,4 @@ public class UrbanKashiPosApplication {
         };
     }
 }
+
