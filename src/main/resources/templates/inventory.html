@@ -200,7 +200,7 @@
 
     <div th:replace="~{fragments/footer :: scripts}"></div>
     <script>
-        document.addEventListener('click', function(e) {
+        function openAddVariantModal(productId) {
             document.getElementById('variantProductId').value = productId;
             document.getElementById('variantId').value = '';
             document.getElementById('variantModalTitle').textContent = 'Add Product Variant';
