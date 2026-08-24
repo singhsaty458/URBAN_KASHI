@@ -47,7 +47,7 @@ public class PosApiController {
         dto.setVariantId(variant.getId());
         dto.setProductName(product.getName());
         dto.setBrand(product.getBrand());
-        dto.setGstRate(product.getGstRate());
+        dto.setGstRate(product.getGstRate() != null ? product.getGstRate() : java.math.BigDecimal.ZERO);
         dto.setHsnCode(product.getHsnCode());
         dto.setSize(variant.getSize());
         dto.setColor(variant.getColor());
@@ -103,3 +103,4 @@ public class PosApiController {
         return ResponseEntity.ok(productRepository.findAll());
     }
 }
+

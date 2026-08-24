@@ -42,7 +42,7 @@ const CartManager = {
                 color: scanResult.color,
                 barcode: scanResult.barcode,
                 sellingPrice: parseFloat(scanResult.sellingPrice),
-                gstRate: parseFloat(scanResult.gstRate),
+                gstRate: parseFloat(scanResult.gstRate) || 0,
                 quantity: 1,
                 stockQuantity: scanResult.stockQuantity
             });
@@ -258,3 +258,4 @@ const CartManager = {
         }
     }
 };
+

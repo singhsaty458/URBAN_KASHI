@@ -60,7 +60,8 @@ public class BillingService {
 
             BigDecimal sellingPrice = variant.getSellingPrice();
             BigDecimal lineTotal = sellingPrice.multiply(BigDecimal.valueOf(dto.getQuantity()));
-            BigDecimal gstRate = product.getGstRate();
+            BigDecimal gstRate = product.getGstRate() != null ? product.getGstRate() : BigDecimal.ZERO;
+
             
             BigDecimal divisor = BigDecimal.ONE.add(gstRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
             BigDecimal taxableBase = lineTotal.divide(divisor, 2, RoundingMode.HALF_UP);
@@ -157,3 +158,4 @@ public class BillingService {
         return dto;
     }
 }
+
