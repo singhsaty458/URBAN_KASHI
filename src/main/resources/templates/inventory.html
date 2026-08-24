@@ -30,10 +30,10 @@
                             <div class="col-md-3"><strong>GST:</strong> <span th:text="${prod.gstRate + '%'}"></span></div>
                             <div class="col-md-3"><strong>Category:</strong> <span th:text="${prod.category}"></span></div>
                             <div class="col-md-6 text-end">
-                                <button class="btn btn-sm btn-outline-light" th:onclick="'openAddVariantModal(' + ${prod.id} + ')'">
+                                <button class="btn btn-sm btn-outline-light" th:data-id="${prod.id}" onclick="openAddVariantModal(this.getAttribute('data-id'))">
                                     <i class="bi bi-plus"></i> Add Variant
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-info ms-2" th:onclick="'openEditProductModal(' + ${prod.id} + ', \'' + ${prod.name} + '\', \'' + ${prod.brand} + '\', \'' + ${prod.category} + '\', \'' + ${prod.hsnCode} + '\', ' + ${prod.gstRate} + ')'"><i class="bi bi-pencil"></i> Update Product</button>
+                                <button type="button" class="btn btn-sm btn-outline-info ms-2" th:data-id="${prod.id}" th:data-name="${prod.name}" th:data-brand="${prod.brand}" th:data-category="${prod.category}" th:data-hsn="${prod.hsnCode}" th:data-gst="${prod.gstRate}" onclick="openEditProductModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-brand'), this.getAttribute('data-category'), this.getAttribute('data-hsn'), this.getAttribute('data-gst'))"><i class="bi bi-pencil"></i> Update Product</button>
                                 <form th:action="@{/inventory/product/delete/{id}(id=${prod.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete this product and all its variants?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
                                         <i class="bi bi-trash"></i> Delete Product
@@ -69,7 +69,7 @@
                                                     <input type="number" name="quantity" class="form-control form-control-sm me-2 bg-dark text-white border-secondary" required placeholder="Add Qty">
                                                     <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2"></i></button>
                                                 </form>
-                                                <button type="button" class="btn btn-sm btn-outline-warning me-2" th:onclick="'openEditVariantModal(' + ${prod.id} + ', ' + ${var.id} + ', \'' + ${var.barcode} + '\', \'' + ${var.size} + '\', \'' + ${var.color} + '\', ' + ${var.costPrice} + ', ' + ${var.sellingPrice} + ', ' + ${var.stockQuantity} + ')'"><i class="bi bi-pencil"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-warning me-2" th:data-prod-id="${prod.id}" th:data-var-id="${var.id}" th:data-barcode="${var.barcode}" th:data-size="${var.size}" th:data-color="${var.color}" th:data-cost="${var.costPrice}" th:data-selling="${var.sellingPrice}" th:data-stock="${var.stockQuantity}" onclick="openEditVariantModal(this.getAttribute('data-prod-id'), this.getAttribute('data-var-id'), this.getAttribute('data-barcode'), this.getAttribute('data-size'), this.getAttribute('data-color'), this.getAttribute('data-cost'), this.getAttribute('data-selling'), this.getAttribute('data-stock'))"><i class="bi bi-pencil"></i></button>
                                                 <form th:action="@{/inventory/variant/delete/{id}(id=${var.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete this variant?');">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                                         <i class="bi bi-trash"></i>
@@ -258,4 +258,5 @@
     </script>
 </body>
 </html>
+
 
