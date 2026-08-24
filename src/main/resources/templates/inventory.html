@@ -7,7 +7,7 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Inventory Management</h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <button class="btn btn-primary" th:onclick="'openAddProductModal()'">
                 <i class="bi bi-plus-lg"></i> Add Product
             </button>
         </div>
@@ -33,6 +33,7 @@
                                 <button class="btn btn-sm btn-outline-light" th:onclick="'openAddVariantModal(' + ${prod.id} + ')'">
                                     <i class="bi bi-plus"></i> Add Variant
                                 </button>
+                                <button type="button" class="btn btn-sm btn-outline-info ms-2" th:onclick="'openEditProductModal(' + ${prod.id} + ', \'' + ${prod.name} + '\', \'' + ${prod.brand} + '\', \'' + ${prod.category} + '\', \'' + ${prod.hsnCode} + '\', ' + ${prod.gstRate} + ')'"><i class="bi bi-pencil"></i> Update Product</button>
                                 <form th:action="@{/inventory/product/delete/{id}(id=${prod.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete this product and all its variants?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
                                         <i class="bi bi-trash"></i> Delete Product
@@ -68,8 +69,7 @@
                                                     <input type="number" name="quantity" class="form-control form-control-sm me-2 bg-dark text-white border-secondary" required placeholder="Add Qty">
                                                     <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2"></i></button>
                                                 </form>
-                                                <button type="button" class="btn btn-sm btn-outline-warning edit-variant-btn me-2" 
-                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-warning me-2" th:onclick="'openEditVariantModal(' + ${prod.id} + ', ' + ${var.id} + ', \'' + ${var.barcode} + '\', \'' + ${var.size} + '\', \'' + ${var.color} + '\', ' + ${var.costPrice} + ', ' + ${var.sellingPrice} + ', ' + ${var.stockQuantity} + ')'"><i class="bi bi-pencil"></i></button>
                                                 <form th:action="@{/inventory/variant/delete/{id}(id=${var.id})}" method="post" class="d-inline" onsubmit="return confirm('Delete this variant?');">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                                         <i class="bi bi-trash"></i>
@@ -95,14 +95,15 @@
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title">Add New Product</h5>
+                    <h5 class="modal-title" id="productModalTitle">Add New Product</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form th:action="@{/inventory/product}" method="post" enctype="multipart/form-data">
                     <div class="modal-body">
+                        <input type="hidden" name="id" id="productIdInput">
                         <div class="mb-3">
                             <label class="form-label">Product Name</label>
-                            <input type="text" name="name" class="form-control" required>
+                            <input type="text" name="name" id="productName" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Product Images (Attach 5+ photos)</label>
@@ -112,21 +113,21 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Brand</label>
-                                <input type="text" name="brand" class="form-control">
+                                <input type="text" name="brand" id="productBrand" class="form-control">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Category</label>
-                                <input type="text" name="category" class="form-control">
+                                <input type="text" name="category" id="productCategory" class="form-control">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">HSN Code</label>
-                                <input type="text" name="hsnCode" class="form-control">
+                                <input type="text" name="hsnCode" id="productHsnCode" class="form-control">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">GST Rate (%)</label>
-                                <select name="gstRate" class="form-select">
+                                <select name="gstRate" id="productGstRate" class="form-select">
                                     <option value="0">0%</option>
                                     <option value="5">5%</option>
                                     <option value="12">12%</option>
@@ -200,6 +201,27 @@
 
     <div th:replace="~{fragments/footer :: scripts}"></div>
     <script>
+        function openAddProductModal() {
+            document.getElementById('productIdInput').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productBrand').value = '';
+            document.getElementById('productCategory').value = '';
+            document.getElementById('productHsnCode').value = '';
+            document.getElementById('productGstRate').value = '0';
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            new bootstrap.Modal(document.getElementById('addProductModal')).show();
+        }
+
+        function openEditProductModal(id, name, brand, category, hsn, gst) {
+            document.getElementById('productIdInput').value = id;
+            document.getElementById('productName').value = name || '';
+            document.getElementById('productBrand').value = brand || '';
+            document.getElementById('productCategory').value = category || '';
+            document.getElementById('productHsnCode').value = hsn || '';
+            document.getElementById('productGstRate').value = gst || '0';
+            document.getElementById('productModalTitle').textContent = 'Update Product';
+            new bootstrap.Modal(document.getElementById('addProductModal')).show();
+        }
         function openAddVariantModal(productId) {
             document.getElementById('variantProductId').value = productId;
             document.getElementById('variantId').value = '';
@@ -236,3 +258,4 @@
     </script>
 </body>
 </html>
+
