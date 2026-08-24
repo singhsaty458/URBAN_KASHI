@@ -11,6 +11,10 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"variants"})
+    @Query("SELECT p FROM Product p")
+    List<Product> findAllWithVariants();
+
     List<Product> findByActiveTrue();
 
     List<Product> findByCategory(String category);
@@ -20,3 +24,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<Product> searchProducts(@Param("query") String query);
 }
+

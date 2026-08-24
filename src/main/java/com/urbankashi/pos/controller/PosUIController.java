@@ -23,7 +23,7 @@ public class PosUIController {
 
     @GetMapping("/pos")
     public String pos(Model model) {
-        model.addAttribute("products", productRepository.findAll()); 
+        model.addAttribute("products", productRepository.findAllWithVariants()); 
         model.addAttribute("customers", customerRepository.findAll());
         return "pos-billing";
     }
@@ -40,3 +40,4 @@ public class PosUIController {
         return pdfGenerationService.generateInvoicePdf(invoice);
     }
 }
+
