@@ -11,37 +11,37 @@
     const pdfUrl = window.location.origin + '/invoice/' + invoiceId + '/pdf';
     
     // Build invoice message
-    let message = 🛒 *URBAN KASHI*\n;
-    message += ━━━━━━━━━━━━━━━\n;
-    message += 📄 Invoice: **\n;
-    message += 📅 Date: \n;
-    message += ━━━━━━━━━━━━━━━\n\n;
+    let message = `🛒 *URBAN KASHI*\n`;
+    message += `━━━━━━━━━━━━━━━\n`;
+    message += `📄 Invoice: *${invoiceNumber}*\n`;
+    message += `📅 Date: ${new Date().toLocaleDateString('en-IN')}\n`;
+    message += `━━━━━━━━━━━━━━━\n\n`;
     
     if (items && items.length > 0) {
-        message += *Items:*\n;
+        message += `*Items:*\n`;
         items.forEach((item, i) => {
-            message += ${i+1}.  (/)\n;
-            message +=    Qty:  × ₹ = ₹\n;
+            message += `${i+1}. ${item.productName} (${item.size}/${item.color})\n`;
+            message += `   Qty: ${item.quantity} × ₹${parseFloat(item.unitPrice).toFixed(2)} = ₹${parseFloat(item.total).toFixed(2)}\n`;
         });
-        message += \n;
+        message += `\n`;
     }
     
-    message += ━━━━━━━━━━━━━━━\n;
+    message += `━━━━━━━━━━━━━━━\n`;
     if (discountAmount && parseFloat(discountAmount) > 0) {
-        message += 🎁 *Discount Applied:* -₹\n;
-        message += 🥳 *You Saved:* ₹!\n;
-        message += ━━━━━━━━━━━━━━━\n;
+        message += `🎁 *Discount Applied:* -₹${parseFloat(discountAmount).toFixed(2)}\n`;
+        message += `🥳 *You Saved:* ₹${parseFloat(discountAmount).toFixed(2)}!\n`;
+        message += `━━━━━━━━━━━━━━━\n`;
     }
-    message += 💰 *Grand Total: ₹*\n;
-    message += ━━━━━━━━━━━━━━━\n\n;
-    message += 📄 *Download/View PDF Invoice:*\n;
-    message += ${pdfUrl}\n\n;
-    message += Thank you for shopping at Urban Kashi! 🙏\n;
-    message += Visit us again!;
+    message += `💰 *Grand Total: ₹${parseFloat(grandTotal).toFixed(2)}*\n`;
+    message += `━━━━━━━━━━━━━━━\n\n`;
+    message += `📄 *Download/View PDF Invoice:*\n`;
+    message += `${pdfUrl}\n\n`;
+    message += `Thank you for shopping at Urban Kashi! 🙏\n`;
+    message += `Visit us again!`;
     
     // Encode and open WhatsApp
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = https://wa.me/?text=;
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank');
     showToast('Opening WhatsApp...', 'success');
