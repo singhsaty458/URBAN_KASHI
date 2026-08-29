@@ -56,10 +56,10 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="var : ${prod.variants}">
-                                        <td th:text="${var.barcode}">UK001</td>
+                                        <td class="inventory-barcode" th:text="${var.barcode}">UK001</td>
                                         <td><span class="badge bg-info" th:text="${var.size}">M</span></td>
-                                        <td><span class="badge bg-secondary" th:text="${var.color}">Red</span></td>
-                                        <td th:text="${'₹' + var.sellingPrice}">₹0</td>
+                                        <td><span class="badge inventory-color-badge" th:classappend="${' color-' + #strings.toLowerCase(#strings.replace(var.color, ' ', '-'))}" th:text="${var.color}">Red</span></td>
+                                        <td class="inventory-price" th:text="${'₹' + var.sellingPrice}">₹0</td>
                                         <td>
                                             <span class="badge" th:classappend="${var.stockQuantity > 5 ? 'bg-success' : (var.stockQuantity > 0 ? 'bg-warning' : 'bg-danger')}" th:text="${var.stockQuantity}">10</span>
                                         </td>
@@ -167,12 +167,22 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Size</label>
-                                <input type="text" name="size" id="variantSize" class="form-control" required>
+                                <label class="form-label">Sizes</label>
+                                <div class="smart-multiselect" id="sizeMultiselect">
+                                    <button type="button" class="smart-select-toggle" onclick="toggleSmartSelect('sizeMultiselect')"><span class="smart-select-label">Select sizes</span><i class="bi bi-chevron-down"></i></button>
+                                    <div class="smart-select-menu"><div class="smart-search"><i class="bi bi-search"></i><input type="search" placeholder="Search or add size..." oninput="filterSmartOptions(this)" onkeydown="addSmartOption(event, this, 'sizes')"></div><div class="smart-options">
+                                        <label><input type="checkbox" name="sizes" value="XS" onchange="updateSmartLabel('sizeMultiselect')"> XS</label><label><input type="checkbox" name="sizes" value="S" onchange="updateSmartLabel('sizeMultiselect')"> S</label><label><input type="checkbox" name="sizes" value="M" onchange="updateSmartLabel('sizeMultiselect')"> M</label><label><input type="checkbox" name="sizes" value="L" onchange="updateSmartLabel('sizeMultiselect')"> L</label><label><input type="checkbox" name="sizes" value="XL" onchange="updateSmartLabel('sizeMultiselect')"> XL</label><label><input type="checkbox" name="sizes" value="XXL" onchange="updateSmartLabel('sizeMultiselect')"> XXL</label><label><input type="checkbox" name="sizes" value="3XL" onchange="updateSmartLabel('sizeMultiselect')"> 3XL</label><label><input type="checkbox" name="sizes" value="FREE" onchange="updateSmartLabel('sizeMultiselect')"> FREE</label><label><input type="checkbox" name="sizes" value="28" onchange="updateSmartLabel('sizeMultiselect')"> 28</label><label><input type="checkbox" name="sizes" value="30" onchange="updateSmartLabel('sizeMultiselect')"> 30</label><label><input type="checkbox" name="sizes" value="32" onchange="updateSmartLabel('sizeMultiselect')"> 32</label><label><input type="checkbox" name="sizes" value="34" onchange="updateSmartLabel('sizeMultiselect')"> 34</label><label><input type="checkbox" name="sizes" value="36" onchange="updateSmartLabel('sizeMultiselect')"> 36</label><label><input type="checkbox" name="sizes" value="38" onchange="updateSmartLabel('sizeMultiselect')"> 38</label><label><input type="checkbox" name="sizes" value="40" onchange="updateSmartLabel('sizeMultiselect')"> 40</label>
+                                    </div><small>Type and press Enter to add a custom size</small></div>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Color</label>
-                                <input type="text" name="color" id="variantColor" class="form-control" required>
+                                <label class="form-label">Colors</label>
+                                <div class="smart-multiselect" id="colorMultiselect">
+                                    <button type="button" class="smart-select-toggle" onclick="toggleSmartSelect('colorMultiselect')"><span class="smart-select-label">Select colors</span><i class="bi bi-chevron-down"></i></button>
+                                    <div class="smart-select-menu"><div class="smart-search"><i class="bi bi-search"></i><input type="search" placeholder="Search or add color..." oninput="filterSmartOptions(this)" onkeydown="addSmartOption(event, this, 'colors')"></div><div class="smart-options">
+                                        <label><input type="checkbox" name="colors" value="Black" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot black"></span> Black</label><label><input type="checkbox" name="colors" value="White" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot white"></span> White</label><label><input type="checkbox" name="colors" value="Blue" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot blue"></span> Blue</label><label><input type="checkbox" name="colors" value="Navy" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot navy"></span> Navy</label><label><input type="checkbox" name="colors" value="Red" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot red"></span> Red</label><label><input type="checkbox" name="colors" value="Green" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot green"></span> Green</label><label><input type="checkbox" name="colors" value="Yellow" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot yellow"></span> Yellow</label><label><input type="checkbox" name="colors" value="Pink" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot pink"></span> Pink</label><label><input type="checkbox" name="colors" value="Grey" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot grey"></span> Grey</label><label><input type="checkbox" name="colors" value="Brown" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot brown"></span> Brown</label><label><input type="checkbox" name="colors" value="Beige" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot beige"></span> Beige</label><label><input type="checkbox" name="colors" value="Maroon" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot maroon"></span> Maroon</label><label><input type="checkbox" name="colors" value="Olive" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot olive"></span> Olive</label><label><input type="checkbox" name="colors" value="Orange" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot orange"></span> Orange</label><label><input type="checkbox" name="colors" value="Purple" onchange="updateSmartLabel('colorMultiselect')"><span class="color-dot purple"></span> Purple</label>
+                                    </div><small>Type and press Enter to add a custom color</small></div>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -192,7 +202,7 @@
                     </div>
                     <div class="modal-footer border-secondary">
                         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Variant</button>
+                        <button type="submit" class="btn btn-primary" onclick="return validateVariantSelections()">Save Variants</button>
                     </div>
                 </form>
             </div>
@@ -230,8 +240,8 @@
             
             // Clear inputs
             document.getElementById('variantBarcode').value = '';
-            document.getElementById('variantSize').value = '';
-            document.getElementById('variantColor').value = '';
+            resetSmartSelect('sizeMultiselect');
+            resetSmartSelect('colorMultiselect');
             document.getElementById('variantCostPrice').value = '';
             document.getElementById('variantSellingPrice').value = '';
             document.getElementById('variantStockQuantity').value = '0';
@@ -247,14 +257,83 @@
             
             // Set inputs
             document.getElementById('variantBarcode').value = barcode;
-            document.getElementById('variantSize').value = size;
-            document.getElementById('variantColor').value = color;
+            selectSmartValue('sizeMultiselect', 'sizes', size);
+            selectSmartValue('colorMultiselect', 'colors', color);
             document.getElementById('variantCostPrice').value = costPrice;
             document.getElementById('variantSellingPrice').value = sellingPrice;
             document.getElementById('variantStockQuantity').value = stockQuantity;
             
             new bootstrap.Modal(document.getElementById('addVariantModal')).show();
         }
+
+        function toggleSmartSelect(id) {
+            const target = document.getElementById(id);
+            document.querySelectorAll('.smart-multiselect.open').forEach(item => { if (item !== target) item.classList.remove('open'); });
+            target.classList.toggle('open');
+            if (target.classList.contains('open')) target.querySelector('input[type="search"]').focus();
+        }
+
+        function filterSmartOptions(input) {
+            const query = input.value.trim().toLowerCase();
+            input.closest('.smart-select-menu').querySelectorAll('.smart-options label').forEach(label => label.hidden = !label.textContent.trim().toLowerCase().includes(query));
+        }
+
+        function addSmartOption(event, input, fieldName) {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            const value = input.value.trim();
+            if (!value) return;
+            const menu = input.closest('.smart-select-menu');
+            let checkbox = [...menu.querySelectorAll(`input[name="${fieldName}"]`)].find(item => item.value.toLowerCase() === value.toLowerCase());
+            if (!checkbox) {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="checkbox" name="${fieldName}" value="${value.replace(/"/g, '&quot;')}" checked> ${value}`;
+                menu.querySelector('.smart-options').prepend(label);
+                checkbox = label.querySelector('input');
+                checkbox.addEventListener('change', () => updateSmartLabel(input.closest('.smart-multiselect').id));
+            } else checkbox.checked = true;
+            input.value = '';
+            filterSmartOptions(input);
+            updateSmartLabel(input.closest('.smart-multiselect').id);
+        }
+
+        function updateSmartLabel(id) {
+            const root = document.getElementById(id);
+            const values = [...root.querySelectorAll('.smart-options input:checked')].map(item => item.value);
+            root.querySelector('.smart-select-label').textContent = values.length ? (values.length <= 2 ? values.join(', ') : `${values.length} selected`) : (id === 'sizeMultiselect' ? 'Select sizes' : 'Select colors');
+        }
+
+        function resetSmartSelect(id) {
+            const root = document.getElementById(id);
+            root.querySelectorAll('.smart-options input').forEach(item => item.checked = false);
+            root.querySelector('input[type="search"]').value = '';
+            root.querySelectorAll('.smart-options label').forEach(label => label.hidden = false);
+            root.classList.remove('open');
+            updateSmartLabel(id);
+        }
+
+        function selectSmartValue(id, fieldName, value) {
+            resetSmartSelect(id);
+            const root = document.getElementById(id);
+            let checkbox = [...root.querySelectorAll(`input[name="${fieldName}"]`)].find(item => item.value.toLowerCase() === String(value).toLowerCase());
+            if (!checkbox && value) {
+                const label = document.createElement('label'); label.innerHTML = `<input type="checkbox" name="${fieldName}" value="${value}" checked> ${value}`;
+                root.querySelector('.smart-options').prepend(label); checkbox = label.querySelector('input');
+            }
+            if (checkbox) checkbox.checked = true;
+            updateSmartLabel(id);
+        }
+
+        function validateVariantSelections() {
+            if (!document.querySelector('input[name="sizes"]:checked') || !document.querySelector('input[name="colors"]:checked')) {
+                alert('Please select at least one size and one color.'); return false;
+            }
+            return true;
+        }
+
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.smart-multiselect')) document.querySelectorAll('.smart-multiselect.open').forEach(item => item.classList.remove('open'));
+        });
     </script>
 </body>
 </html>

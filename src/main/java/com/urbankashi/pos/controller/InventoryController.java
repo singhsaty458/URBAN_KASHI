@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.List;
 
 @Controller
 @RequestMapping("/inventory")
@@ -95,42 +96,67 @@ public class InventoryController {
     }
 
     @PostMapping("/variant")
-    public String saveVariant(@ModelAttribute ProductVariant variant, @RequestParam Long productId, @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
+    public String saveVariant(@ModelAttribute ProductVariant variant, @RequestParam Long productId,
+                              @RequestParam List<String> sizes, @RequestParam List<String> colors,
+                              @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        
-        ProductVariant targetVariant;
+
+        if (sizes.isEmpty() || colors.isEmpty()) {
+            throw new IllegalArgumentException("Select at least one size and one color");
+        }
+
         if (variant.getId() != null) {
-            targetVariant = productVariantRepository.findById(variant.getId())
+            if (sizes.size() != 1 || colors.size() != 1) {
+                throw new IllegalArgumentException("Select one size and one color while editing a variant");
+            }
+            ProductVariant targetVariant = productVariantRepository.findById(variant.getId())
                     .orElseThrow(() -> new RuntimeException("Variant not found"));
             targetVariant.setBarcode(variant.getBarcode());
-            targetVariant.setSize(variant.getSize());
-            targetVariant.setColor(variant.getColor());
+            targetVariant.setSize(sizes.get(0));
+            targetVariant.setColor(colors.get(0));
             targetVariant.setCostPrice(variant.getCostPrice());
             targetVariant.setSellingPrice(variant.getSellingPrice());
             targetVariant.setStockQuantity(variant.getStockQuantity());
+            uploadVariantImages(targetVariant, imageFiles);
+            productVariantRepository.save(targetVariant);
         } else {
-            targetVariant = variant;
-            targetVariant.setProduct(product);
-        }
-        
-        if (imageFiles != null && imageFiles.length > 0) {
-            for (MultipartFile file : imageFiles) {
-                if (file.isEmpty()) continue;
-                try {
-                    String fileUrl = imageStorageService.uploadImage(file);
-                    targetVariant.getImageUrls().add(fileUrl);
-                    if (targetVariant.getImageUrl() == null || targetVariant.getImageUrl().trim().isEmpty()) {
-                        targetVariant.setImageUrl(fileUrl);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            boolean multiple = sizes.size() * colors.size() > 1;
+            for (String size : sizes) {
+                for (String color : colors) {
+                    ProductVariant targetVariant = ProductVariant.builder()
+                            .product(product).barcode(buildVariantBarcode(variant.getBarcode(), size, color, multiple))
+                            .size(size.trim()).color(color.trim()).costPrice(variant.getCostPrice())
+                            .sellingPrice(variant.getSellingPrice()).stockQuantity(variant.getStockQuantity()).build();
+                    uploadVariantImages(targetVariant, imageFiles);
+                    productVariantRepository.save(targetVariant);
                 }
             }
         }
-        
-        productVariantRepository.save(targetVariant);
         return "redirect:/inventory";
+    }
+
+    private String buildVariantBarcode(String base, String size, String color, boolean multiple) {
+        if (!multiple) return base;
+        String suffix = (size + "-" + color).toUpperCase().replaceAll("[^A-Z0-9]+", "-");
+        String prefix = base == null ? "UK" : base.trim();
+        return (prefix + "-" + suffix).substring(0, Math.min(100, prefix.length() + suffix.length() + 1));
+    }
+
+    private void uploadVariantImages(ProductVariant targetVariant, MultipartFile[] imageFiles) {
+        if (imageFiles != null) {
+            for (MultipartFile file : imageFiles) {
+                if (!file.isEmpty()) {
+                    try {
+                        String fileUrl = imageStorageService.uploadImage(file);
+                        targetVariant.getImageUrls().add(fileUrl);
+                        if (targetVariant.getImageUrl() == null) targetVariant.setImageUrl(fileUrl);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Variant image upload failed", e);
+                    }
+                }
+            }
+        }
     }
 
     @PostMapping("/variant/delete/{id}")
