@@ -827,3 +827,6 @@ body::after {
     .inventory-page .accordion-button > div { grid-template-columns:minmax(150px,1fr) 100px; }
     .inventory-page .accordion-button > div > .badge:nth-of-type(1) { display:none; }
 }
+
+/* Apparel size-color stock matrix */
+.matrix-page { overflow:auto; background:linear-gradient(145deg,#f7f8fc,#eef1f7); }.matrix-card { overflow:hidden; padding:20px; border:1px solid #e0e5ee; border-top:2px solid #d5aa36; border-radius:15px; background:#fff; box-shadow:0 9px 25px #17203312; }.stock-matrix-table { width:100%; border-collapse:separate; border-spacing:7px; }.stock-matrix-table th { padding:9px; color:#526079; font-size:12px; text-align:center; }.stock-matrix-table tbody th { min-width:110px; text-align:left; }.matrix-cell { min-width:82px; padding:12px 7px; border:1px solid #e2e7ef; border-radius:9px; text-align:center; background:#f7f9fc; }.matrix-cell strong { display:block; color:#243653; font-size:17px; }.matrix-cell small { display:block; margin-top:3px; max-width:90px; overflow:hidden; color:#8894a8; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }.matrix-cell.in { border-color:#8bcdae; background:#eaf8f1; }.matrix-cell.low { border-color:#e7c35d; background:#fff7df; }.matrix-cell.out { border-color:#eca0a5; background:#fff0f1; }.matrix-cell.missing { color:#aab3c1; background:#f2f4f7; }

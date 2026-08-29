@@ -54,6 +54,8 @@ public class BillingService {
         invoice.setCustomer(customer);
         invoice.setPaymentMode(paymentMode);
         invoice.setDiscount(discount != null ? discount : BigDecimal.ZERO);
+        invoice.setCashierUsername(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() == null
+            ? "system" : org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
 
         List<InvoiceItem> items = new ArrayList<>();
         BigDecimal sumLineTotals = BigDecimal.ZERO;
@@ -89,6 +91,7 @@ public class BillingService {
             item.setColor(variant.getColor());
             item.setQuantity(dto.getQuantity());
             item.setUnitPrice(sellingPrice);
+            item.setCostPrice(variant.getCostPrice());
             item.setTaxableAmount(taxableBase);
             item.setCgstAmount(cgst);
             item.setSgstAmount(sgst);

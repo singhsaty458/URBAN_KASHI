@@ -14,6 +14,7 @@ import com.urbankashi.pos.repository.ProductVariantRepository;
 import com.urbankashi.pos.service.BillingService;
 import com.urbankashi.pos.service.CustomerService;
 import com.urbankashi.pos.service.ReturnService;
+import com.urbankashi.pos.service.WhatsAppInvoiceService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class PosApiController {
     private final BillingService billingService;
     private final CustomerService customerService;
     private final ReturnService returnService;
+    private final WhatsAppInvoiceService whatsAppInvoiceService;
 
     @GetMapping("/scan")
     public ResponseEntity<ScanResultDTO> scanBarcode(@RequestParam String barcode) {
@@ -115,6 +117,16 @@ public class PosApiController {
     public ResponseEntity<ReturnResponseDTO> processReturn(
             @Valid @RequestBody com.urbankashi.pos.dto.ReturnRequestDTO request) {
         return ResponseEntity.ok(returnService.processReturn(request));
+    }
+
+    @PostMapping("/invoice/{invoiceId}/whatsapp")
+    public ResponseEntity<?> sendInvoiceOnWhatsApp(@PathVariable Long invoiceId, @RequestParam String phone) {
+        if (!whatsAppInvoiceService.isConfigured()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(java.util.Map.of("message", "WhatsApp Cloud API is not configured; using device sharing instead"));
+        }
+        whatsAppInvoiceService.sendInvoice(invoiceId, phone);
+        return ResponseEntity.ok(java.util.Map.of("message", "PDF receipt sent on WhatsApp"));
     }
 
     @GetMapping("/products")

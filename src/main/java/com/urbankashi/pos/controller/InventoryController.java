@@ -29,18 +29,21 @@ public class InventoryController {
     private final InventoryService inventoryService;
     private final com.urbankashi.pos.repository.InvoiceItemRepository invoiceItemRepository;
     private final ImageStorageService imageStorageService;
+    private final com.urbankashi.pos.service.ApparelService apparelService;
 
     @Autowired
     public InventoryController(ProductRepository productRepository, 
                                ProductVariantRepository productVariantRepository,
                                InventoryService inventoryService,
                                com.urbankashi.pos.repository.InvoiceItemRepository invoiceItemRepository,
-                               ImageStorageService imageStorageService) {
+                               ImageStorageService imageStorageService,
+                               com.urbankashi.pos.service.ApparelService apparelService) {
         this.productRepository = productRepository;
         this.productVariantRepository = productVariantRepository;
         this.inventoryService = inventoryService;
         this.invoiceItemRepository = invoiceItemRepository;
         this.imageStorageService = imageStorageService;
+        this.apparelService = apparelService;
     }
 
     @GetMapping("")
@@ -115,6 +118,7 @@ public class InventoryController {
             targetVariant.setBarcode(variant.getBarcode());
             targetVariant.setSize(sizes.get(0));
             targetVariant.setColor(colors.get(0));
+            if (targetVariant.getSku() == null) targetVariant.setSku(apparelService.generateSku(product, sizes.get(0), colors.get(0)));
             targetVariant.setCostPrice(variant.getCostPrice());
             targetVariant.setSellingPrice(variant.getSellingPrice());
             targetVariant.setStockQuantity(variant.getStockQuantity());
@@ -126,6 +130,7 @@ public class InventoryController {
                 for (String color : colors) {
                     ProductVariant targetVariant = ProductVariant.builder()
                             .product(product).barcode(buildVariantBarcode(variant.getBarcode(), size, color, multiple))
+                            .sku(apparelService.generateSku(product, size, color))
                             .size(size.trim()).color(color.trim()).costPrice(variant.getCostPrice())
                             .sellingPrice(variant.getSellingPrice()).stockQuantity(variant.getStockQuantity()).build();
                     uploadVariantImages(targetVariant, imageFiles);

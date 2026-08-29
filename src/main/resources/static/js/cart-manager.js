@@ -217,7 +217,7 @@ const CartManager = {
         try {
             const response = await fetch('/api/checkout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': this.csrfToken() },
+                headers: { 'Content-Type': 'application/json', [this.csrfHeader()]: this.csrfToken() },
                 body: JSON.stringify(payload)
             });
             
@@ -239,8 +239,14 @@ const CartManager = {
     },
 
     csrfToken() {
+        const meta = document.querySelector('meta[name="_csrf"]');
+        if (meta?.content) return meta.content;
         const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
         return match ? decodeURIComponent(match[1]) : '';
+    },
+
+    csrfHeader() {
+        return document.querySelector('meta[name="_csrf_header"]')?.content || 'X-XSRF-TOKEN';
     },
     
     showInvoiceModal(invoice) {

@@ -39,6 +39,9 @@ public class InvoiceItem {
     private BigDecimal unitPrice;
 
     @Column(precision = 10, scale = 2)
+    private BigDecimal costPrice;
+
+    @Column(precision = 10, scale = 2)
     private BigDecimal taxableAmount;
 
     @Column(precision = 10, scale = 2)

@@ -26,10 +26,11 @@ function renderInvoice() {
 byId('processReturn').addEventListener('click', async () => {
   const items = [...document.querySelectorAll('[data-item-id]')].map(input => ({ invoiceItemId: Number(input.dataset.itemId), quantity: Number(input.value) })).filter(item => item.quantity > 0);
   if (!items.length) { byId('returnMessage').textContent = 'Select at least one quantity to return.'; return; }
-  const response = await fetch('/api/returns', { method:'POST', headers:{'Content-Type':'application/json','X-XSRF-TOKEN':csrfCookie()}, body:JSON.stringify({ invoiceNumber:currentInvoice.invoiceNumber, items, refundMode:byId('refundMode').value, reason:byId('reason').value }) });
+  const response = await fetch('/api/returns', { method:'POST', headers:{'Content-Type':'application/json',[csrfHeader()]:csrfToken()}, body:JSON.stringify({ invoiceNumber:currentInvoice.invoiceNumber, items, refundMode:byId('refundMode').value, reason:byId('reason').value }) });
   const result = await response.json(); byId('returnMessage').textContent = response.ok ? `Refund ${result.returnNumber} completed for ₹${Number(result.refundAmount).toFixed(2)}.` : (result.message || 'Refund failed.');
 });
-function csrfCookie() { const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/); return match ? decodeURIComponent(match[1]) : ''; }
+function csrfToken() { return document.querySelector('meta[name="_csrf"]')?.content || ''; }
+function csrfHeader() { return document.querySelector('meta[name="_csrf_header"]')?.content || 'X-XSRF-TOKEN'; }
 </script>
 </body>
 </html>

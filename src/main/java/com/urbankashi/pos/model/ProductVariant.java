@@ -31,6 +31,9 @@ public class ProductVariant {
     @Column(unique = true, length = 100)
     private String barcode;
 
+    @Column(unique = true, length = 100)
+    private String sku;
+
     @Column(length = 10)
     private String size;
 

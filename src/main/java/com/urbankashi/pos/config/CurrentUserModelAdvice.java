@@ -23,6 +23,8 @@ public class CurrentUserModelAdvice {
         if (path.startsWith("/returns")) return "Returns / Refunds";
         if (path.startsWith("/stock-history")) return "Stock History";
         if (path.startsWith("/audit-logs")) return "Audit Logs";
+        if (path.startsWith("/apparel-reports")) return "Apparel Reports";
+        if (path.startsWith("/inventory/matrix")) return "Stock Matrix";
         if (path.startsWith("/account")) return "Account";
         return "Urban Kashi POS";
     }

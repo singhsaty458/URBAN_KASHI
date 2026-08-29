@@ -3,6 +3,8 @@
 <head th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>Urban Kashi POS</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -60,6 +62,9 @@
             <a th:href="@{/audit-logs}" class="nav-link" data-path="/audit-logs">
                 <i class="bi bi-shield-check"></i> Audit Logs
             </a>
+            <a th:href="@{/apparel-reports}" class="nav-link" data-path="/apparel-reports">
+                <i class="bi bi-bar-chart"></i> Apparel Reports
+            </a>
         </div>
         <button class="hamburger-menu" id="hamburgerMenu" style="position: fixed; top: 15px; left: 15px; z-index: 1050;">
             <i class="bi bi-list"></i>
@@ -88,12 +93,12 @@
 
             // Spring Security CSRF token for existing HTML forms.
             document.addEventListener('DOMContentLoaded', function() {
-                var match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
-                if (!match) return;
+                var tokenMeta = document.querySelector('meta[name="_csrf"]');
+                if (!tokenMeta) return;
                 document.querySelectorAll('form[method="post"], form:not([method])').forEach(function(form) {
                     if (form.querySelector('input[name="_csrf"]')) return;
                     var input = document.createElement('input');
-                    input.type = 'hidden'; input.name = '_csrf'; input.value = decodeURIComponent(match[1]);
+                    input.type = 'hidden'; input.name = '_csrf'; input.value = tokenMeta.content;
                     form.appendChild(input);
                 });
             });

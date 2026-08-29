@@ -53,6 +53,9 @@ public class Invoice {
     @Builder.Default
     private String status = "COMPLETED";
 
+    @Column(length = 100, updatable = false)
+    private String cashierUsername;
+
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<InvoiceItem> items = new ArrayList<>();
