@@ -51,6 +51,15 @@
             <a th:href="@{/customers}" class="nav-link" data-path="/customers">
                 <i class="bi bi-people"></i> Customers
             </a>
+            <a th:href="@{/returns}" class="nav-link" data-path="/returns">
+                <i class="bi bi-arrow-return-left"></i> Returns / Refunds
+            </a>
+            <a th:href="@{/stock-history}" class="nav-link" data-path="/stock-history">
+                <i class="bi bi-clock-history"></i> Stock History
+            </a>
+            <a th:href="@{/audit-logs}" class="nav-link" data-path="/audit-logs">
+                <i class="bi bi-shield-check"></i> Audit Logs
+            </a>
         </div>
         <button class="hamburger-menu" id="hamburgerMenu" style="position: fixed; top: 15px; left: 15px; z-index: 1050;">
             <i class="bi bi-list"></i>
@@ -76,7 +85,38 @@
                     });
                 });
             }
+
+            // Spring Security CSRF token for existing HTML forms.
+            document.addEventListener('DOMContentLoaded', function() {
+                var match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
+                if (!match) return;
+                document.querySelectorAll('form[method="post"], form:not([method])').forEach(function(form) {
+                    if (form.querySelector('input[name="_csrf"]')) return;
+                    var input = document.createElement('input');
+                    input.type = 'hidden'; input.name = '_csrf'; input.value = decodeURIComponent(match[1]);
+                    form.appendChild(input);
+                });
+            });
         </script>
+        <header class="shared-page-header">
+            <h2 th:text="${sectionName}">Dashboard</h2>
+            <p class="header-slogan">सर्वे भवन्तु सुखिनः</p>
+        </header>
+        <details class="global-user-menu">
+            <summary class="global-user-chip" aria-label="Open user menu">
+                <span th:text="${#strings.toUpperCase(#strings.substring(currentUser, 0, 1))}">U</span>
+                <strong th:text="${currentUser}">admin</strong>
+                <i class="bi bi-chevron-down"></i>
+            </summary>
+            <div class="global-user-dropdown">
+                <a href="/account"><i class="bi bi-person"></i> Account</a>
+                <div class="dropdown-divider"></div>
+                <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                </form>
+            </div>
+        </details>
     </div>
 </body>
 </html>

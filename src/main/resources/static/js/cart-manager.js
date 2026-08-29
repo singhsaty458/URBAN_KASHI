@@ -23,6 +23,7 @@ const CartManager = {
     customerPhone: '',
     customerName: '',
     discount: 0,
+    checkoutInProgress: false,
     
     addItem(scanResult) {
         // scanResult is ScanResultDTO from /api/scan
@@ -80,6 +81,25 @@ const CartManager = {
         document.getElementById('customerPhone')?.value && (document.getElementById('customerPhone').value = '');
         document.getElementById('customerName')?.value && (document.getElementById('customerName').value = '');
         document.getElementById('customerInfo')?.classList.add('d-none');
+    },
+
+    holdCart() {
+        if (!this.items.length) return showToast('Cart is empty!', 'error');
+        localStorage.setItem('urbanKashiHeldCart', JSON.stringify({ items: this.items, customerPhone: this.customerPhone, customerName: this.customerName, discount: this.discount }));
+        this.clearCart();
+        showToast('Cart held safely on this device.', 'success');
+    },
+
+    resumeCart() {
+        const held = localStorage.getItem('urbanKashiHeldCart');
+        if (!held) return showToast('No held cart found.', 'info');
+        Object.assign(this, JSON.parse(held));
+        localStorage.removeItem('urbanKashiHeldCart');
+        document.getElementById('customerPhone').value = this.customerPhone || '';
+        document.getElementById('customerName').value = this.customerName || '';
+        document.getElementById('discountInput').value = this.discount || 0;
+        this.renderCart();
+        showToast('Held cart resumed.', 'success');
     },
     
     calculateTotals() {
@@ -179,6 +199,7 @@ const CartManager = {
     },
     
     async checkout(paymentMode) {
+        if (this.checkoutInProgress) return;
         if (this.items.length === 0) {
             showToast('Cart is empty!', 'error');
             return;
@@ -192,10 +213,11 @@ const CartManager = {
             discount: this.discount
         };
         
+        this.checkoutInProgress = true;
         try {
             const response = await fetch('/api/checkout', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': this.csrfToken() },
                 body: JSON.stringify(payload)
             });
             
@@ -211,7 +233,14 @@ const CartManager = {
         } catch (error) {
             console.error('Checkout error:', error);
             showToast('Network error during checkout', 'error');
+        } finally {
+            this.checkoutInProgress = false;
         }
+    },
+
+    csrfToken() {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
     },
     
     showInvoiceModal(invoice) {
@@ -258,4 +287,11 @@ const CartManager = {
         }
     }
 };
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'F2') { event.preventDefault(); document.getElementById('barcodeInput')?.focus(); }
+    if (event.key === 'F4') { event.preventDefault(); document.getElementById('customerPhone')?.focus(); }
+    if (event.key === 'F8') { event.preventDefault(); CartManager.checkout('CASH'); }
+    if (event.ctrlKey && event.key === 'Enter') { event.preventDefault(); CartManager.checkout('CASH'); }
+});
 

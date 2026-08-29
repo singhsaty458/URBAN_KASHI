@@ -28,11 +28,18 @@ public class BillingService {
     private final InventoryService inventoryService;
     private final CustomerService customerService;
     private final InvoiceNumberGenerator invoiceNumberGenerator;
+    private final AuditService auditService;
 
     @Transactional(rollbackFor = Exception.class)
     public InvoiceResponseDTO generateInvoice(List<CartItemDTO> cartItems, String customerPhone, String customerName, PaymentMode paymentMode, BigDecimal discount) {
         if (cartItems == null || cartItems.isEmpty()) {
             throw new IllegalArgumentException("Cart cannot be empty");
+        }
+        if (paymentMode == null) {
+            throw new IllegalArgumentException("Payment mode is required");
+        }
+        if (discount != null && discount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Discount cannot be negative");
         }
 
         Customer customer = customerService.findOrCreate(customerPhone, customerName);
@@ -52,11 +59,15 @@ public class BillingService {
         BigDecimal sumLineTotals = BigDecimal.ZERO;
 
         for (CartItemDTO dto : cartItems) {
-            ProductVariant variant = productVariantRepository.findById(dto.getVariantId())
+            if (dto == null || dto.getVariantId() == null || dto.getQuantity() == null || dto.getQuantity() <= 0) {
+                throw new IllegalArgumentException("Each cart item must have a valid variant and positive quantity");
+            }
+            ProductVariant variant = productVariantRepository.findByIdForUpdate(dto.getVariantId())
                     .orElseThrow(() -> new RuntimeException("Variant not found: " + dto.getVariantId()));
             Product product = variant.getProduct();
 
-            inventoryService.deductStock(variant.getId(), dto.getQuantity());
+                inventoryService.deductStock(variant.getId(), dto.getQuantity(), StockMovementType.SALE,
+                    invoice.getInvoiceNumber(), "POS checkout");
 
             BigDecimal sellingPrice = variant.getSellingPrice();
             BigDecimal lineTotal = sellingPrice.multiply(BigDecimal.valueOf(dto.getQuantity()));
@@ -92,6 +103,9 @@ public class BillingService {
         }
 
         grandTotal = sumLineTotals.subtract(invoice.getDiscount());
+        if (grandTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Discount cannot exceed the bill total");
+        }
 
         invoice.setTotalTaxable(totalTaxable);
         invoice.setTotalCgst(totalCgst);
@@ -100,6 +114,8 @@ public class BillingService {
         invoice.setItems(items);
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
+        auditService.record("INVOICE_CREATED", "Invoice", savedInvoice.getId(),
+            "Invoice " + savedInvoice.getInvoiceNumber() + " generated for " + grandTotal);
 
         if (customer != null) {
             customerService.addLoyaltyPoints(customer.getId(), grandTotal);
@@ -142,6 +158,7 @@ public class BillingService {
         if (invoice.getItems() != null) {
             List<InvoiceResponseDTO.ItemDetail> details = invoice.getItems().stream().map(item -> {
                 InvoiceResponseDTO.ItemDetail detail = new InvoiceResponseDTO.ItemDetail();
+                detail.setInvoiceItemId(item.getId());
                 detail.setProductName(item.getProductName());
                 detail.setSize(item.getSize());
                 detail.setColor(item.getColor());

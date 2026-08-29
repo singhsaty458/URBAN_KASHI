@@ -49,6 +49,10 @@ public class Invoice {
     @Enumerated(EnumType.STRING)
     private PaymentMode paymentMode;
 
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private String status = "COMPLETED";
+
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<InvoiceItem> items = new ArrayList<>();

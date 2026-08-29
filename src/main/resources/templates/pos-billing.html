@@ -9,6 +9,7 @@
             
             <!-- LEFT PANEL: Product Catalogue -->
             <div class="col-lg-4 h-100 d-flex flex-column">
+                <div class="pos-panel-heading"><span>PRODUCT CATALOGUE</span><small>Scan or select an item</small></div>
                 <div class="mb-3">
                     <div class="input-group">
                         <span class="input-group-text bg-dark text-white border-secondary"><i class="bi bi-upc-scan"></i></span>
@@ -34,6 +35,7 @@
             </div>
             <!-- CENTER PANEL: Active Cart -->
             <div class="col-lg-5 h-100 d-flex flex-column">
+                <div class="pos-panel-heading"><span>ACTIVE ORDER</span><small>Customer &amp; cart details</small></div>
                 <div class="card bg-dark border-secondary mb-3">
                     <div class="card-body p-2">
                         <div class="row g-2">
@@ -91,6 +93,7 @@
             
             <!-- RIGHT PANEL: Checkout Summary -->
             <div class="col-lg-3 h-100">
+                <div class="pos-panel-heading"><span>PAYMENT</span><small>Secure checkout</small></div>
                 <div class="checkout-panel d-flex flex-column h-100">
                     <h5 class="text-center mb-4 border-bottom pb-2 border-secondary">Order Summary</h5>
                     
@@ -123,6 +126,7 @@
                     </div>
                     
                     <div class="mt-auto">
+                        <div class="d-flex gap-2 mb-2"><button class="btn btn-sm btn-outline-secondary flex-fill" onclick="CartManager.holdCart()"><i class="bi bi-pause-circle"></i> Hold</button><button class="btn btn-sm btn-outline-info flex-fill" onclick="CartManager.resumeCart()"><i class="bi bi-play-circle"></i> Resume</button></div>
                         <button class="payment-btn cash w-100" onclick="CartManager.checkout('CASH')">
                             <i class="bi bi-cash-stack me-2"></i> Cash
                         </button>

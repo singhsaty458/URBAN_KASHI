@@ -1,105 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: head}"></head>
-<body>
+<body class="modern-dashboard">
     <div th:replace="~{fragments/header :: sidebar}"></div>
-    
-    <div class="main-content">
-        <h2 class="mb-4">Dashboard</h2>
-        
-        <div class="row">
-            <div class="col-md-3">
-                <div class="dashboard-card bg-gradient-green">
-                    <h5>Today's Revenue</h5>
-                    <h3 th:text="${'₹' + #numbers.formatDecimal(dashboard.todayRevenue, 1, 'COMMA', 2, 'POINT')}">₹0.00</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-card bg-gradient-blue">
-                    <h5>Today's Transactions</h5>
-                    <h3 th:text="${dashboard.todayTransactions}">0</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-card bg-gradient-purple">
-                    <h5>Month's Revenue</h5>
-                    <h3 th:text="${'₹' + #numbers.formatDecimal(dashboard.monthRevenue, 1, 'COMMA', 2, 'POINT')}">₹0.00</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="dashboard-card bg-gradient-red">
-                    <h5>Total Customers</h5>
-                    <h3 th:text="${dashboard.totalCustomers}">0</h3>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <div class="card bg-dark text-white border-secondary h-100">
-                    <div class="card-header border-secondary">
-                        <h5 class="mb-0">Recent Invoices</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-dark table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice #</th>
-                                        <th>Customer</th>
-                                        <th>Amount</th>
-                                        <th>Mode</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="inv : ${dashboard.recentInvoices}">
-                                        <td th:text="${inv.invoiceNumber}">INV-001</td>
-                                        <td th:text="${inv.customer != null ? inv.customer.fullName : 'Walk-in'}">John Doe</td>
-                                        <td th:text="${'₹' + #numbers.formatDecimal(inv.grandTotal, 1, 'COMMA', 2, 'POINT')}">₹1000.00</td>
-                                        <td>
-                                            <span class="badge" 
-                                                  th:classappend="${inv.paymentMode == 'CASH' ? 'bg-success' : (inv.paymentMode == 'UPI' ? 'bg-info' : 'bg-primary')}"
-                                                  th:text="${inv.paymentMode}">CASH</span>
-                                        </td>
-                                        <td th:text="${#temporals.format(inv.createdAt, 'dd MMM yy HH:mm')}">12 Jan 24 14:30</td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(dashboard.recentInvoices)}">
-                                        <td colspan="5" class="text-center py-3">No recent invoices</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4 mt-4 mt-md-0">
-                <div class="card bg-dark text-white border-secondary h-100">
-                    <div class="card-header border-secondary d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Low Stock Alerts</h5>
-                        <span class="badge bg-danger rounded-pill" th:text="${dashboard.lowStockCount}">0</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush list-group-dark bg-dark">
-                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center" th:each="item : ${dashboard.lowStockItems}">
-                                <div>
-                                    <strong th:text="${item.product.name}">Product</strong>
-                                    <br>
-                                    <small class="text-muted" th:text="${item.size + ' - ' + item.color}">S - Red</small>
-                                </div>
-                                <span class="badge bg-danger rounded-pill" th:text="${item.stockQuantity}">2</span>
-                            </li>
-                            <li class="list-group-item bg-dark text-white border-secondary text-center py-3" th:if="${#lists.isEmpty(dashboard.lowStockItems)}">
-                                No low stock items
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+    <main class="main-content">
+        <header class="dashboard-topbar">
+            <div><p class="eyebrow">Good morning 👋</p><h1>Business overview</h1></div>
+        </header>
+        <section class="revenue-hero">
+            <div><span class="hero-label">TODAY'S REVENUE</span><strong th:text="${'₹' + #numbers.formatDecimal(dashboard.todayRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</strong><p>Keep up the great work today</p></div><div class="hero-symbol">₹</div>
+        </section>
+        <section class="modern-stats">
+            <article class="modern-stat"><span class="stat-symbol blue">▣</span><div><small>Today's orders</small><strong th:text="${dashboard.todayTransactions}">0</strong><em>Completed transactions</em></div></article>
+            <article class="modern-stat"><span class="stat-symbol purple">◒</span><div><small>Monthly revenue</small><strong th:text="${'₹' + #numbers.formatDecimal(dashboard.monthRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</strong><em th:text="${dashboard.monthTransactions + ' orders this month'}">0 orders this month</em></div></article>
+            <article class="modern-stat"><span class="stat-symbol gold">♙</span><div><small>Total customers</small><strong th:text="${dashboard.totalCustomers}">0</strong><em>Registered customers</em></div></article>
+            <article class="modern-stat warning"><span class="stat-symbol red">!</span><div><small>Low stock alerts</small><strong th:text="${dashboard.lowStockCount}">0</strong><em>Items need attention</em></div></article>
+        </section>
+        <section class="modern-panels">
+            <article class="modern-panel"><div class="panel-title"><div><h2>Recent transactions</h2><p>Latest sales activity</p></div><a href="/pos">New sale →</a></div><div class="table-responsive"><table class="modern-table"><thead><tr><th>Invoice</th><th>Customer</th><th>Payment</th><th class="text-end">Amount</th><th>Date</th></tr></thead><tbody><tr th:each="inv : ${dashboard.recentInvoices}"><td class="invoice-id" th:text="${inv.invoiceNumber}">INV-001</td><td th:text="${inv.customer != null ? inv.customer.fullName : 'Walk-in'}">Walk-in</td><td><span class="payment-badge" th:text="${inv.paymentMode}">CASH</span></td><td class="text-end amount" th:text="${'₹' + #numbers.formatDecimal(inv.grandTotal, 1, 'COMMA', 0, 'POINT')}">₹0</td><td th:text="${#temporals.format(inv.createdAt, 'dd MMM yy')}">Today</td></tr><tr th:if="${#lists.isEmpty(dashboard.recentInvoices)}"><td colspan="5" class="empty-row">No transactions yet</td></tr></tbody></table></div></article>
+            <article class="modern-panel"><div class="panel-title"><div><h2>Stock watch</h2><p>Items running low</p></div><a href="/inventory">Manage →</a></div><ul class="modern-stock"><li th:each="item : ${dashboard.lowStockItems}"><span class="product-symbol">◈</span><div><strong th:text="${item.product.name}">Product</strong><small th:text="${item.size + ' · ' + item.color}">Standard · Default</small></div><b th:text="${item.stockQuantity + ' left'}">2 left</b></li><li th:if="${#lists.isEmpty(dashboard.lowStockItems)}" class="empty-row">All products are well stocked ✓</li></ul></article>
+        </section>
+    </main>
     <div th:replace="~{fragments/footer :: scripts}"></div>
 </body>
 </html>

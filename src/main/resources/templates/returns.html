@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: sidebar}"></div>
+<main class="main-content returns-page">
+    <div class="page-heading"><div><span class="eyebrow">AFTER-SALES</span><h1>Returns & refunds</h1><p>Find an invoice and process eligible items safely.</p></div></div>
+    <section class="return-card">
+        <label for="invoiceNumber">Invoice number</label><div class="lookup-row"><input id="invoiceNumber" placeholder="e.g. UK-2026-00001"><button id="findInvoice">Find invoice</button></div><p id="lookupMessage" class="form-message"></p>
+        <div id="invoicePanel" class="d-none"><div class="invoice-summary"><strong id="invoiceTitle"></strong><span id="invoiceTotal"></span></div><div id="returnItems"></div><label for="reason">Reason (optional)</label><input id="reason" placeholder="Size issue, damaged, customer request..."><label for="refundMode">Refund mode</label><select id="refundMode"><option value="">Original payment mode</option><option value="CASH">Cash</option><option value="UPI">UPI</option><option value="CARD">Card</option></select><button id="processReturn" class="refund-button">Process refund</button><p id="returnMessage" class="form-message"></p></div>
+    </section>
+</main>
+<script>
+const byId = id => document.getElementById(id);
+let currentInvoice;
+byId('findInvoice').addEventListener('click', async () => {
+  const number = byId('invoiceNumber').value.trim(); if (!number) return;
+  byId('lookupMessage').textContent = 'Loading invoice…';
+  try { const response = await fetch('/api/invoice/' + encodeURIComponent(number)); if (!response.ok) throw new Error('Invoice not found'); currentInvoice = await response.json(); renderInvoice(); }
+  catch (error) { byId('invoicePanel').classList.add('d-none'); byId('lookupMessage').textContent = error.message; }
+});
+function renderInvoice() {
+  byId('lookupMessage').textContent = ''; byId('invoicePanel').classList.remove('d-none'); byId('invoiceTitle').textContent = currentInvoice.invoiceNumber; byId('invoiceTotal').textContent = '₹' + Number(currentInvoice.grandTotal).toFixed(2);
+  byId('returnItems').innerHTML = currentInvoice.items.map(item => `<label class="return-item"><input type="number" min="0" max="${item.quantity}" value="0" data-item-id="${item.invoiceItemId}"><span><strong>${item.productName}</strong><small>${item.size || ''} · ${item.color || ''} · sold ${item.quantity}</small></span><b>₹${Number(item.total).toFixed(2)}</b></label>`).join('');
+}
+byId('processReturn').addEventListener('click', async () => {
+  const items = [...document.querySelectorAll('[data-item-id]')].map(input => ({ invoiceItemId: Number(input.dataset.itemId), quantity: Number(input.value) })).filter(item => item.quantity > 0);
+  if (!items.length) { byId('returnMessage').textContent = 'Select at least one quantity to return.'; return; }
+  const response = await fetch('/api/returns', { method:'POST', headers:{'Content-Type':'application/json','X-XSRF-TOKEN':csrfCookie()}, body:JSON.stringify({ invoiceNumber:currentInvoice.invoiceNumber, items, refundMode:byId('refundMode').value, reason:byId('reason').value }) });
+  const result = await response.json(); byId('returnMessage').textContent = response.ok ? `Refund ${result.returnNumber} completed for ₹${Number(result.refundAmount).toFixed(2)}.` : (result.message || 'Refund failed.');
+});
+function csrfCookie() { const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/); return match ? decodeURIComponent(match[1]) : ''; }
+</script>
+</body>
+</html>

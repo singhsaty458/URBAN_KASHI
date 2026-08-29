@@ -4,9 +4,9 @@
 <body>
     <div th:replace="~{fragments/header :: sidebar}"></div>
     
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Inventory Management</h2>
+    <div class="main-content inventory-page">
+        <div class="section-toolbar">
+            <div><p class="section-kicker">CATALOGUE &amp; STOCK</p><p class="section-description">Organize products, variants, pricing and on-hand inventory.</p></div>
             <button class="btn btn-primary" th:onclick="'openAddProductModal()'">
                 <i class="bi bi-plus-lg"></i> Add Product
             </button>

@@ -4,25 +4,25 @@
 <body>
     <div th:replace="~{fragments/header :: sidebar}"></div>
     
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Customers</h2>
+    <div class="main-content customers-page">
+        <div class="section-toolbar">
+            <div><p class="section-kicker">CUSTOMER RELATIONSHIP</p><p class="section-description">Manage customer profiles, loyalty points and store credit.</p></div>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
                 <i class="bi bi-person-plus"></i> Add Customer
             </button>
         </div>
         
-        <div class="card bg-dark text-white border-secondary">
-            <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+        <div class="card customer-directory-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Customer Directory</h5>
-                <div class="input-group" style="width: 300px;">
-                    <span class="input-group-text bg-secondary text-white border-secondary"><i class="bi bi-search"></i></span>
+                <div class="input-group directory-search">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
                     <input type="text" class="form-control" placeholder="Search by name or phone...">
                 </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-dark table-striped table-hover mb-0">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Name</th>

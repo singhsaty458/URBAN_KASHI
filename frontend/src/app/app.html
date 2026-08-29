@@ -1,0 +1,35 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">🔱</span><div><strong>अर्बन काशी</strong><small>SMART POS SYSTEM</small></div></div>
+    <nav aria-label="Main navigation">
+      <a class="nav-item active"><span>▦</span> Dashboard</a>
+      <a class="nav-item" href="http://localhost:8080/pos"><span>▣</span> New billing</a>
+      <a class="nav-item" href="http://localhost:8080/inventory"><span>◫</span> Inventory</a>
+      <a class="nav-item" href="http://localhost:8080/customers"><span>♙</span> Customers</a>
+      <a class="nav-item" href="http://localhost:8080/returns"><span>↩</span> Returns / Refunds</a>
+    </nav>
+    <div class="sidebar-footer"><span class="status-dot"></span> System online</div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><div><p class="eyebrow">Good morning 👋</p><h1>Business overview</h1></div><div class="top-actions"><button class="icon-button" aria-label="Notifications">♢</button><div class="avatar">UK</div></div></header>
+    @if (loading()) { <section class="loading-card">Loading your dashboard…</section> }
+    @if (error()) { <section class="error-card">{{ error() }}</section> }
+    @if (dashboard(); as data) {
+      <section class="hero-card"><div><span class="hero-label">TODAY'S REVENUE</span><strong>{{ formatCurrency(data.todayRevenue) }}</strong><p><span class="positive">↑ 12.5%</span> compared with yesterday</p></div><div class="hero-icon">₹</div></section>
+      <section class="stats-grid">
+        <article class="stat-card"><span class="stat-icon blue">▣</span><div><small>Today's orders</small><strong>{{ data.todayTransactions }}</strong><span class="muted">Completed transactions</span></div></article>
+        <article class="stat-card"><span class="stat-icon purple">◒</span><div><small>Monthly revenue</small><strong>{{ formatCurrency(data.monthRevenue) }}</strong><span class="muted">{{ data.monthTransactions }} orders this month</span></div></article>
+        <article class="stat-card"><span class="stat-icon gold">♙</span><div><small>Total customers</small><strong>{{ data.totalCustomers }}</strong><span class="muted">Registered customers</span></div></article>
+        <article class="stat-card alert"><span class="stat-icon red">!</span><div><small>Low stock alerts</small><strong>{{ data.lowStockCount }}</strong><span class="muted">Items need attention</span></div></article>
+      </section>
+      <section class="content-grid">
+        <article class="panel"><div class="panel-heading"><div><h2>Recent transactions</h2><p>Latest sales activity</p></div><a href="http://localhost:8080/reports">View all →</a></div>
+          @if (data.recentInvoices.length) { <div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Date</th><th>Payment</th><th class="align-right">Amount</th></tr></thead><tbody>@for (invoice of data.recentInvoices; track invoice.invoiceNumber) {<tr><td class="invoice-id">{{ invoice.invoiceNumber }}</td><td>{{ formatDate(invoice.createdAt) }}</td><td><span class="badge">{{ invoice.paymentMode }}</span></td><td class="align-right amount">{{ formatCurrency(invoice.grandTotal) }}</td></tr>}</tbody></table></div> } @else { <div class="empty-state">No transactions yet</div> }
+        </article>
+        <article class="panel"><div class="panel-heading"><div><h2>Stock watch</h2><p>Items running low</p></div><a href="http://localhost:8080/inventory">Manage →</a></div>
+          @if (data.lowStockItems.length) { <ul class="stock-list">@for (item of data.lowStockItems; track $index) {<li><span class="product-dot">◈</span><div><strong>{{ item.product?.name || 'Product variant' }}</strong><small>{{ item.size || 'Standard' }} · {{ item.color || 'Default' }}</small></div><span class="stock-count">{{ item.stockQuantity }} left</span></li>}</ul> } @else { <div class="empty-state success-text">All products are well stocked ✓</div> }
+        </article>
+      </section>
+    }
+  </main>
+</div>

@@ -31,6 +31,7 @@ public class InvoiceResponseDTO {
     @AllArgsConstructor
     @Builder
     public static class ItemDetail {
+        private Long invoiceItemId;
         private String productName;
         private String size;
         private String color;

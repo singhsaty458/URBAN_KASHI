@@ -3,6 +3,7 @@ package com.urbankashi.pos.controller;
 import com.urbankashi.pos.dto.CartItemDTO;
 import com.urbankashi.pos.dto.InvoiceResponseDTO;
 import com.urbankashi.pos.dto.ScanResultDTO;
+import com.urbankashi.pos.dto.ReturnResponseDTO;
 import com.urbankashi.pos.exception.InsufficientStockException;
 import com.urbankashi.pos.model.Customer;
 import com.urbankashi.pos.model.PaymentMode;
@@ -12,12 +13,16 @@ import com.urbankashi.pos.repository.ProductRepository;
 import com.urbankashi.pos.repository.ProductVariantRepository;
 import com.urbankashi.pos.service.BillingService;
 import com.urbankashi.pos.service.CustomerService;
+import com.urbankashi.pos.service.ReturnService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,6 +38,7 @@ public class PosApiController {
     private final ProductRepository productRepository;
     private final BillingService billingService;
     private final CustomerService customerService;
+    private final ReturnService returnService;
 
     @GetMapping("/scan")
     public ResponseEntity<ScanResultDTO> scanBarcode(@RequestParam String barcode) {
@@ -61,15 +67,17 @@ public class PosApiController {
 
     @Data
     public static class CheckoutRequest {
+        @NotEmpty
         private List<CartItemDTO> items;
         private String customerPhone;
         private String customerName;
+        @NotBlank
         private String paymentMode;
         private BigDecimal discount = BigDecimal.ZERO;
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> processCheckout(@RequestBody CheckoutRequest request) {
+    public ResponseEntity<?> processCheckout(@Valid @RequestBody CheckoutRequest request) {
         try {
             PaymentMode mode = PaymentMode.valueOf(request.getPaymentMode().toUpperCase());
             InvoiceResponseDTO response = billingService.generateInvoice(
@@ -96,6 +104,17 @@ public class PosApiController {
     public ResponseEntity<Customer> lookupCustomer(@RequestParam String phone) {
         Optional<Customer> customer = customerService.findByPhone(phone);
         return customer.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/invoice/{invoiceNumber}")
+    public ResponseEntity<InvoiceResponseDTO> getInvoice(@PathVariable String invoiceNumber) {
+        return ResponseEntity.ok(billingService.getInvoiceByNumber(invoiceNumber));
+    }
+
+    @PostMapping("/returns")
+    public ResponseEntity<ReturnResponseDTO> processReturn(
+            @Valid @RequestBody com.urbankashi.pos.dto.ReturnRequestDTO request) {
+        return ResponseEntity.ok(returnService.processReturn(request));
     }
 
     @GetMapping("/products")
