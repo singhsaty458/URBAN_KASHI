@@ -733,3 +733,18 @@ body::after {
     50%  { transform: scale(1.3); }
     100% { transform: scale(1); }
 }
+
+/* Visible product dropdown action */
+.inventory-page .btn-add-variant {
+    border: 1px solid #c89b27;
+    background: linear-gradient(135deg, #fff9e8, #f8e6ad);
+    color: #805d0d;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(184, 139, 32, 0.18);
+}
+.inventory-page .btn-add-variant:hover {
+    border-color: #ad7f13;
+    background: linear-gradient(135deg, #d3a42e, #ebc75f);
+    color: #fff;
+    transform: translateY(-1px);
+}
