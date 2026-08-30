@@ -17,6 +17,8 @@
         <link rel="stylesheet" th:href="@{/css/customer-detail-style.css}">
         <link rel="stylesheet" th:href="@{/css/pos-quantity-style.css}">
         <link rel="stylesheet" th:href="@{/css/transactions-style.css}">
+        <link rel="stylesheet" th:href="@{/css/backup-style.css}">
+        <link rel="stylesheet" th:href="@{/css/backup-export-style.css}">
     
     <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json">
@@ -72,6 +74,9 @@
             </a>
             <a th:href="@{/apparel-reports}" class="nav-link" data-path="/apparel-reports">
                 <i class="bi bi-bar-chart"></i> Apparel Reports
+            </a>
+            <a th:href="@{/backups}" class="nav-link" data-path="/backups">
+                <i class="bi bi-cloud-arrow-up"></i> Backup &amp; Recovery
             </a>
         </div>
         <button class="hamburger-menu" id="hamburgerMenu" style="position: fixed; top: 15px; left: 15px; z-index: 1050;">
