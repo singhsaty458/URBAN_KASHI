@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/h2-console/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/inventory/product/delete/**", "/inventory/variant/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/api/returns/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/api/exchanges/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

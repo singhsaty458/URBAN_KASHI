@@ -15,6 +15,7 @@ import com.urbankashi.pos.service.BillingService;
 import com.urbankashi.pos.service.CustomerService;
 import com.urbankashi.pos.service.ReturnService;
 import com.urbankashi.pos.service.WhatsAppInvoiceService;
+import com.urbankashi.pos.service.ExchangeService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class PosApiController {
     private final CustomerService customerService;
     private final ReturnService returnService;
     private final WhatsAppInvoiceService whatsAppInvoiceService;
+    private final ExchangeService exchangeService;
 
     @GetMapping("/scan")
     public ResponseEntity<ScanResultDTO> scanBarcode(@RequestParam String barcode) {
@@ -113,10 +115,10 @@ public class PosApiController {
         return ResponseEntity.ok(billingService.getInvoiceByNumber(invoiceNumber));
     }
 
-    @PostMapping("/returns")
-    public ResponseEntity<ReturnResponseDTO> processReturn(
-            @Valid @RequestBody com.urbankashi.pos.dto.ReturnRequestDTO request) {
-        return ResponseEntity.ok(returnService.processReturn(request));
+    @PostMapping("/exchanges")
+    public ResponseEntity<com.urbankashi.pos.dto.ExchangeResponseDTO> processExchange(
+            @Valid @RequestBody com.urbankashi.pos.dto.ExchangeRequestDTO request) {
+        return ResponseEntity.ok(exchangeService.replace(request));
     }
 
     @PostMapping("/invoice/{invoiceId}/whatsapp")

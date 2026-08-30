@@ -20,7 +20,7 @@ public class CurrentUserModelAdvice {
         if (path.startsWith("/pos")) return "Billing / POS";
         if (path.startsWith("/inventory")) return "Inventory";
         if (path.startsWith("/customers")) return "Customers";
-        if (path.startsWith("/returns")) return "Returns / Refunds";
+        if (path.startsWith("/returns")) return "Product Replacement";
         if (path.startsWith("/stock-history")) return "Stock History";
         if (path.startsWith("/audit-logs")) return "Audit Logs";
         if (path.startsWith("/apparel-reports")) return "Apparel Reports";

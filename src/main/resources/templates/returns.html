@@ -4,15 +4,27 @@
 <body>
 <div th:replace="~{fragments/header :: sidebar}"></div>
 <main class="main-content returns-page">
-    <div class="page-heading"><div><span class="eyebrow">AFTER-SALES</span><h1>Returns & refunds</h1><p>Find an invoice and process eligible items safely.</p></div></div>
-    <section class="return-card">
-        <label for="invoiceNumber">Invoice number</label><div class="lookup-row"><input id="invoiceNumber" placeholder="e.g. UK-2026-00001"><button id="findInvoice">Find invoice</button></div><p id="lookupMessage" class="form-message"></p>
-        <div id="invoicePanel" class="d-none"><div class="invoice-summary"><strong id="invoiceTitle"></strong><span id="invoiceTotal"></span></div><div id="returnItems"></div><label for="reason">Reason (optional)</label><input id="reason" placeholder="Size issue, damaged, customer request..."><label for="refundMode">Refund mode</label><select id="refundMode"><option value="">Original payment mode</option><option value="CASH">Cash</option><option value="UPI">UPI</option><option value="CARD">Card</option></select><button id="processReturn" class="refund-button">Process refund</button><p id="returnMessage" class="form-message"></p></div>
+  <div class="returns-intro"><div><span class="eyebrow">AFTER-SALES DESK</span><h1>Product replacement</h1><p>Replace eligible merchandise against the original invoice. Cash refunds are not permitted.</p></div><div class="returns-policy"><i class="bi bi-arrow-left-right"></i><span><strong>Replacement-only policy</strong><small>Choose products of equal or higher value; pay only the difference.</small></span></div></div>
+  <section class="return-lookup-card">
+    <div class="return-card-title"><span class="return-step">01</span><div><h2>Find the original invoice</h2><p>Enter the complete invoice number printed on the receipt.</p></div></div>
+    <div class="lookup-row"><div class="return-input-wrap"><i class="bi bi-receipt"></i><input id="invoiceNumber" aria-label="Invoice number" placeholder="e.g. UK-2026-00001"></div><button id="findInvoice"><i class="bi bi-search"></i> Find invoice</button></div><p id="lookupMessage" class="form-message" role="status"></p>
+  </section>
+  <section id="invoicePanel" class="return-card d-none">
+    <div class="invoice-summary"><div><span>INVOICE</span><strong id="invoiceTitle"></strong></div><div class="invoice-total"><span>ORIGINAL TOTAL</span><strong id="invoiceTotal"></strong></div></div>
+    <div class="return-card-title compact"><span class="return-step">02</span><div><h2>Select products being replaced</h2><p>Enter only the quantity physically received from the customer.</p></div></div>
+    <div class="return-items-head"><span>Qty</span><span>Product &amp; variant</span><span>Sold</span><span>Line total</span></div><div id="returnItems" class="return-items"></div>
+    <div class="return-card-title compact"><span class="return-step">03</span><div><h2>Add replacement products</h2><p>Scan a barcode and adjust the replacement quantity if required.</p></div></div>
+    <div class="lookup-row replacement-lookup"><div class="return-input-wrap"><i class="bi bi-upc-scan"></i><input id="replacementBarcode" placeholder="Scan or enter replacement barcode"></div><button id="addReplacement"><i class="bi bi-plus-lg"></i> Add product</button></div>
+    <div id="replacementItems" class="replacement-items"><div class="replacement-empty">No replacement products selected.</div></div>
+    <div class="replacement-totals"><span>Returned value <strong id="returnCredit">₹0.00</strong></span><span>Replacement value <strong id="replacementValue">₹0.00</strong></span><span>Amount to pay <strong id="differenceValue">₹0.00</strong></span></div>
+    <div class="return-form-grid"><div class="return-field"><label for="reason">Replacement reason <small>Optional</small></label><div class="return-input-wrap"><i class="bi bi-chat-left-text"></i><input id="reason" placeholder="Size issue, color change, customer request..."></div></div><div class="return-field"><label for="paymentMode">Difference payment mode</label><div class="return-input-wrap"><i class="bi bi-wallet2"></i><select id="paymentMode"><option value="CASH">Cash</option><option value="UPI">UPI</option><option value="CARD">Card</option></select></div></div></div>
+    <div class="return-submit-row"><div><span>Ready to replace?</span><small>Original stock will be restored and a new replacement invoice will be created.</small></div><button id="processReplacement" class="refund-button"><i class="bi bi-arrow-left-right"></i> Complete replacement</button></div><p id="returnMessage" class="form-message" role="status"></p>
     </section>
 </main>
 <script>
 const byId = id => document.getElementById(id);
 let currentInvoice;
+let replacementItems = [];
 byId('findInvoice').addEventListener('click', async () => {
   const number = byId('invoiceNumber').value.trim(); if (!number) return;
   byId('lookupMessage').textContent = 'Loading invoice…';
@@ -21,13 +33,34 @@ byId('findInvoice').addEventListener('click', async () => {
 });
 function renderInvoice() {
   byId('lookupMessage').textContent = ''; byId('invoicePanel').classList.remove('d-none'); byId('invoiceTitle').textContent = currentInvoice.invoiceNumber; byId('invoiceTotal').textContent = '₹' + Number(currentInvoice.grandTotal).toFixed(2);
-  byId('returnItems').innerHTML = currentInvoice.items.map(item => `<label class="return-item"><input type="number" min="0" max="${item.quantity}" value="0" data-item-id="${item.invoiceItemId}"><span><strong>${item.productName}</strong><small>${item.size || ''} · ${item.color || ''} · sold ${item.quantity}</small></span><b>₹${Number(item.total).toFixed(2)}</b></label>`).join('');
+  byId('returnItems').innerHTML = currentInvoice.items.map(item => `<div class="return-item"><input aria-label="Return quantity for ${escapeHtml(item.productName)}" type="number" min="0" max="${item.quantity}" value="0" data-item-id="${item.invoiceItemId}"><span><strong>${escapeHtml(item.productName)}</strong><small>${escapeHtml(item.size || '—')} · ${escapeHtml(item.color || '—')}</small></span><em>${item.quantity} pcs</em><b>₹${Number(item.total).toFixed(2)}</b></div>`).join('');
 }
-byId('processReturn').addEventListener('click', async () => {
-  const items = [...document.querySelectorAll('[data-item-id]')].map(input => ({ invoiceItemId: Number(input.dataset.itemId), quantity: Number(input.value) })).filter(item => item.quantity > 0);
-  if (!items.length) { byId('returnMessage').textContent = 'Select at least one quantity to return.'; return; }
-  const response = await fetch('/api/returns', { method:'POST', headers:{'Content-Type':'application/json',[csrfHeader()]:csrfToken()}, body:JSON.stringify({ invoiceNumber:currentInvoice.invoiceNumber, items, refundMode:byId('refundMode').value, reason:byId('reason').value }) });
-  const result = await response.json(); byId('returnMessage').textContent = response.ok ? `Refund ${result.returnNumber} completed for ₹${Number(result.refundAmount).toFixed(2)}.` : (result.message || 'Refund failed.');
+function escapeHtml(value) { const node=document.createElement('div'); node.textContent=String(value ?? ''); return node.innerHTML; }
+byId('returnItems').addEventListener('input', updateReplacementTotals);
+byId('addReplacement').addEventListener('click', addReplacementByBarcode);
+byId('replacementBarcode').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); addReplacementByBarcode(); } });
+async function addReplacementByBarcode() {
+  const barcode=byId('replacementBarcode').value.trim(); if(!barcode)return;
+  const response=await fetch('/api/scan?barcode='+encodeURIComponent(barcode));
+  if(!response.ok){byId('returnMessage').textContent='Replacement barcode not found.';return;}
+  const product=await response.json(); if(product.stockQuantity<1){byId('returnMessage').textContent='Selected replacement is out of stock.';return;}
+  const existing=replacementItems.find(item=>item.variantId===product.variantId); if(existing) existing.quantity++; else replacementItems.push({...product,quantity:1});
+  byId('replacementBarcode').value=''; byId('returnMessage').textContent=''; renderReplacementItems();
+}
+function renderReplacementItems(){
+  byId('replacementItems').innerHTML=replacementItems.length?replacementItems.map((item,index)=>`<div class="replacement-item"><span><strong>${escapeHtml(item.productName)}</strong><small>${escapeHtml(item.size)} · ${escapeHtml(item.color)} · ₹${Number(item.sellingPrice).toFixed(2)}</small></span><input type="number" min="1" max="${item.stockQuantity}" value="${item.quantity}" onchange="setReplacementQty(${index},this.value)"><b>₹${(Number(item.sellingPrice)*item.quantity).toFixed(2)}</b><button onclick="removeReplacement(${index})"><i class="bi bi-trash"></i></button></div>`).join(''):'<div class="replacement-empty">No replacement products selected.</div>'; updateReplacementTotals();
+}
+function setReplacementQty(index,value){replacementItems[index].quantity=Math.max(1,Math.min(Number(value),replacementItems[index].stockQuantity));renderReplacementItems()}
+function removeReplacement(index){replacementItems.splice(index,1);renderReplacementItems()}
+function selectedReturnedItems(){return [...document.querySelectorAll('[data-item-id]')].map(input=>({invoiceItemId:Number(input.dataset.itemId),quantity:Number(input.value)})).filter(item=>item.quantity>0)}
+function updateReplacementTotals(){
+  const selected=selectedReturnedItems(); const originalLines=currentInvoice?.items.reduce((sum,item)=>sum+Number(item.total),0)||0; const invoiceRatio=originalLines?Number(currentInvoice.grandTotal)/originalLines:1; let credit=0; selected.forEach(row=>{const sold=currentInvoice?.items.find(item=>item.invoiceItemId===row.invoiceItemId);if(sold)credit+=(Number(sold.total)/sold.quantity)*row.quantity*invoiceRatio});
+  const replacement=replacementItems.reduce((sum,item)=>sum+Number(item.sellingPrice)*item.quantity,0); byId('returnCredit').textContent='₹'+credit.toFixed(2);byId('replacementValue').textContent='₹'+replacement.toFixed(2);byId('differenceValue').textContent='₹'+Math.max(0,replacement-credit).toFixed(2);
+}
+byId('processReplacement').addEventListener('click', async () => {
+  const returnedItems=selectedReturnedItems(); if(!returnedItems.length){byId('returnMessage').textContent='Select at least one original product.';return} if(!replacementItems.length){byId('returnMessage').textContent='Add at least one replacement product.';return}
+  const button=byId('processReplacement');button.disabled=true;button.innerHTML='<span class="spinner-border spinner-border-sm"></span> Processing...';
+  try{const response=await fetch('/api/exchanges',{method:'POST',headers:{'Content-Type':'application/json',[csrfHeader()]:csrfToken()},body:JSON.stringify({invoiceNumber:currentInvoice.invoiceNumber,returnedItems,replacementItems:replacementItems.map(item=>({variantId:item.variantId,quantity:item.quantity})),paymentMode:byId('paymentMode').value,reason:byId('reason').value})});const result=await response.json();if(!response.ok)throw new Error(result.message||result.error||'Replacement failed');byId('returnMessage').textContent=`Replacement ${result.exchangeNumber} completed. Amount paid ₹${Number(result.amountPaid).toFixed(2)}.`;replacementItems=[];renderReplacementItems();document.querySelectorAll('[data-item-id]').forEach(input=>input.value=0)}catch(error){byId('returnMessage').textContent=error.message}finally{button.disabled=false;button.innerHTML='<i class="bi bi-arrow-left-right"></i> Complete replacement'}
 });
 function csrfToken() { return document.querySelector('meta[name="_csrf"]')?.content || ''; }
 function csrfHeader() { return document.querySelector('meta[name="_csrf_header"]')?.content || 'X-XSRF-TOKEN'; }
