@@ -1,0 +1,6 @@
+/* Active order quantity control */
+.pos-container .quantity-control { overflow:hidden; border:1px solid #dce3ed; border-radius:8px; background:#fff; box-shadow:0 2px 6px #1720330d; }
+.pos-container .quantity-control .btn-quantity { width:31px; padding:0; border:0; border-radius:0; background:#f6f8fb; color:#40516c; font-size:16px; font-weight:700; line-height:34px; }
+.pos-container .quantity-control .btn-quantity:hover { background:#e7edf7; color:#1e4f9b; }
+.pos-container .quantity-control .quantity-input { min-width:0; min-height:34px; padding:2px; border:0 !important; border-left:1px solid #e2e7ef !important; border-right:1px solid #e2e7ef !important; background:#fff !important; color:#172033 !important; font-weight:700; box-shadow:none !important; }
+.pos-container .quantity-control .quantity-input:focus { box-shadow:inset 0 0 0 1px #c69a28 !important; }

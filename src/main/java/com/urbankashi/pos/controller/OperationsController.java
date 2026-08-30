@@ -5,6 +5,9 @@ import com.urbankashi.pos.model.StockMovement;
 import com.urbankashi.pos.model.StockMovementType;
 import com.urbankashi.pos.repository.AuditLogRepository;
 import com.urbankashi.pos.repository.StockMovementRepository;
+import com.urbankashi.pos.repository.InvoiceRepository;
+import com.urbankashi.pos.model.Invoice;
+import com.urbankashi.pos.model.PaymentMode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +28,7 @@ import java.util.List;
 public class OperationsController {
     private final StockMovementRepository stockMovementRepository;
     private final AuditLogRepository auditLogRepository;
+    private final InvoiceRepository invoiceRepository;
 
     @GetMapping("/stock-history")
     public String stockHistory(@RequestParam(required = false) StockMovementType type,
@@ -65,6 +69,39 @@ public class OperationsController {
         List<AuditLog> logs = auditLogRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end);
         model.addAttribute("logs", logs); model.addAttribute("from", start.toLocalDate()); model.addAttribute("to", end.minusDays(1).toLocalDate());
         return "audit-logs";
+    }
+
+    @GetMapping("/transactions")
+    public String transactionHistory(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                     @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                     @RequestParam(required = false) PaymentMode paymentMode,
+                                     @RequestParam(required = false) String search, Model model) {
+        LocalDateTime start = (from == null ? LocalDate.now().minusDays(30) : from).atStartOfDay();
+        LocalDateTime end = (to == null ? LocalDate.now() : to).plusDays(1).atStartOfDay();
+        List<Invoice> transactions = invoiceRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(start, end).stream()
+                .filter(invoice -> paymentMode == null || invoice.getPaymentMode() == paymentMode)
+                .filter(invoice -> search == null || search.isBlank() || invoice.getInvoiceNumber().toLowerCase().contains(search.toLowerCase())
+                        || (invoice.getCustomer() != null && ((invoice.getCustomer().getFullName() != null && invoice.getCustomer().getFullName().toLowerCase().contains(search.toLowerCase()))
+                        || (invoice.getCustomer().getPhoneNumber() != null && invoice.getCustomer().getPhoneNumber().contains(search)))))
+                .toList();
+        model.addAttribute("transactions", transactions);
+        model.addAttribute("paymentModes", PaymentMode.values());
+        model.addAttribute("selectedPaymentMode", paymentMode);
+        model.addAttribute("search", search == null ? "" : search);
+        model.addAttribute("from", start.toLocalDate()); model.addAttribute("to", end.minusDays(1).toLocalDate());
+        model.addAttribute("transactionTotal", transactions.stream().map(Invoice::getGrandTotal).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
+        return "transactions";
+    }
+
+    @GetMapping(value = "/transactions/export", produces = "text/csv")
+    @ResponseBody
+    public byte[] exportTransactions() {
+        StringBuilder csv = new StringBuilder("Date,Invoice,Customer,Phone,Payment,Status,Discount,Total,Cashier\n");
+        invoiceRepository.findAllByOrderByCreatedAtDesc().forEach(invoice -> csv.append(csv(invoice.getCreatedAt())).append(',').append(csv(invoice.getInvoiceNumber())).append(',')
+                .append(csv(invoice.getCustomer() == null ? "Walk-in Customer" : invoice.getCustomer().getFullName())).append(',')
+                .append(csv(invoice.getCustomer() == null ? "" : invoice.getCustomer().getPhoneNumber())).append(',').append(csv(invoice.getPaymentMode())).append(',')
+                .append(csv(invoice.getStatus())).append(',').append(csv(invoice.getDiscount())).append(',').append(csv(invoice.getGrandTotal())).append(',').append(csv(invoice.getCashierUsername())).append('\n'));
+        return csv.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     @GetMapping(value = "/audit-logs/export", produces = "text/csv")

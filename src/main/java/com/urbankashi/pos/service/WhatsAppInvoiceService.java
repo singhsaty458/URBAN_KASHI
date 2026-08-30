@@ -20,6 +20,8 @@ public class WhatsAppInvoiceService {
     @Value("${app.whatsapp.access-token:}") private String accessToken;
     @Value("${app.whatsapp.phone-number-id:}") private String phoneNumberId;
     @Value("${app.whatsapp.graph-version:v22.0}") private String graphVersion;
+    @Value("${app.whatsapp.receipt-template:}") private String receiptTemplate;
+    @Value("${app.whatsapp.template-language:en_US}") private String templateLanguage;
 
     public boolean isConfigured() {
         return accessToken != null && !accessToken.isBlank() && phoneNumberId != null && !phoneNumberId.isBlank();
@@ -46,12 +48,22 @@ public class WhatsAppInvoiceService {
         if (upload == null || upload.get("id") == null) throw new IllegalStateException("WhatsApp media upload failed");
 
         Map<String, Object> document = Map.of("id", upload.get("id"), "filename", invoice.getInvoiceNumber() + ".pdf",
-                "caption", "Urban Kashi receipt " + invoice.getInvoiceNumber() + " • Total ₹" + invoice.getGrandTotal());
-        Map<String, Object> request = Map.of("messaging_product", "whatsapp", "recipient_type", "individual",
-                "to", phone, "type", "document", "document", document);
+            "caption", "Urban Kashi receipt " + invoice.getInvoiceNumber() + " • Total ₹" + invoice.getGrandTotal());
+        Map<String, Object> request = receiptTemplate == null || receiptTemplate.isBlank()
+            ? Map.of("messaging_product", "whatsapp", "recipient_type", "individual", "to", phone, "type", "document", "document", document)
+            : templateRequest(phone, document);
         client.post().uri(baseUrl + "/messages").contentType(MediaType.APPLICATION_JSON)
                 .body(request).retrieve().toBodilessEntity();
     }
+
+        private Map<String, Object> templateRequest(String phone, Map<String, Object> document) {
+        Map<String, Object> header = Map.of("type", "header", "parameters", java.util.List.of(
+            Map.of("type", "document", "document", Map.of("id", document.get("id"), "filename", document.get("filename")))));
+        Map<String, Object> template = Map.of("name", receiptTemplate, "language", Map.of("code", templateLanguage),
+            "components", java.util.List.of(header));
+        return Map.of("messaging_product", "whatsapp", "recipient_type", "individual", "to", phone,
+            "type", "template", "template", template);
+        }
 
     private String normalizePhone(String phone) {
         String digits = phone == null ? "" : phone.replaceAll("\\D", "");

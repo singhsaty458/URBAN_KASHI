@@ -151,10 +151,10 @@ const CartManager = {
                 <td><span class="badge bg-info">${item.size}</span></td>
                 <td><span class="badge" style="background:${this.getColorBadge(item.color)}">${item.color}</span></td>
                 <td>
-                    <div class="input-group input-group-sm" style="width:100px">
-                        <button class="btn btn-outline-light btn-sm" onclick="CartManager.updateQuantity(${item.variantId}, ${item.quantity - 1})">−</button>
-                        <input type="number" class="form-control text-center bg-dark text-white" value="${item.quantity}" min="1" max="${item.stockQuantity}" onchange="CartManager.updateQuantity(${item.variantId}, parseInt(this.value))">
-                        <button class="btn btn-outline-light btn-sm" onclick="CartManager.updateQuantity(${item.variantId}, ${item.quantity + 1})">+</button>
+                    <div class="input-group input-group-sm quantity-control" style="width:112px">
+                        <button class="btn btn-quantity" onclick="CartManager.updateQuantity(${item.variantId}, ${item.quantity - 1})">−</button>
+                        <input type="number" class="form-control text-center quantity-input" value="${item.quantity}" min="1" max="${item.stockQuantity}" onchange="CartManager.updateQuantity(${item.variantId}, parseInt(this.value))">
+                        <button class="btn btn-quantity" onclick="CartManager.updateQuantity(${item.variantId}, ${item.quantity + 1})">+</button>
                     </div>
                 </td>
                 <td>₹${item.sellingPrice.toFixed(2)}</td>

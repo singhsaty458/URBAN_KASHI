@@ -18,6 +18,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
+    List<Invoice> findByCreatedAtBetweenOrderByCreatedAtDesc(LocalDateTime start, LocalDateTime end);
+
     List<Invoice> findByCustomerId(Long customerId);
 
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.createdAt >= :start")
@@ -27,6 +29,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     BigDecimal sumRevenueSince(@Param("start") LocalDateTime start);
 
     List<Invoice> findTop10ByOrderByCreatedAtDesc();
+    List<Invoice> findAllByOrderByCreatedAtDesc();
 
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE Invoice i SET i.customer = null WHERE i.customer.id = :customerId")
