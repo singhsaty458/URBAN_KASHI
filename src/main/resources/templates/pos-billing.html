@@ -14,6 +14,7 @@
                     <div class="input-group">
                         <span class="input-group-text bg-dark text-white border-secondary"><i class="bi bi-upc-scan"></i></span>
                         <input type="text" id="barcodeInput" class="form-control" placeholder="Scan or enter barcode..." autofocus>
+                        <button type="button" class="btn btn-outline-primary" onclick="BarcodeScanner.openCameraScanner()" title="Scan using phone camera" aria-label="Scan using phone camera"><i class="bi bi-camera"></i></button>
                     </div>
                 </div>
                 <div class="mb-3">
@@ -23,7 +24,7 @@
                     </div>
                 </div>
                 <div class="product-grid flex-grow-1" id="productGrid">
-                    <div class="product-card" th:each="prod : ${products}" th:onclick="'showProductVariants(' + ${prod.id} + ')'">
+                    <div class="product-card" th:each="prod : ${products}" th:data-product-search="${prod.name + ' ' + (prod.brand != null ? prod.brand : '')}" th:onclick="'showProductVariants(' + ${prod.id} + ')'">
                         <img th:src="${prod.imageUrl != null ? prod.imageUrl : '/images/placeholder.jpg'}" alt="Product" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18a28e83b0a%20text%20%7B%20fill%3A%23999%3Bfont-weight%3Anormal%3Bfont-family%3Avar(--bs-font-sans-serif)%2C%20sans-serif%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18a28e83b0a%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23373940%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.421875%22%20y%3D%22104.5%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E'">
                         <div class="w-100 text-center">
                             <div class="fw-bold text-truncate" th:text="${prod.name}">Name</div>
@@ -146,6 +147,22 @@
             
         </div>
     </div>
+
+    <div class="modal fade" id="cameraScannerModal" tabindex="-1" aria-labelledby="cameraScannerTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cameraScannerTitle"><i class="bi bi-camera me-2"></i>Scan product code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-2">Point the camera at the QR code or barcode on the product label.</p>
+                    <video id="cameraScannerPreview" class="w-100 rounded bg-dark" autoplay muted playsinline></video>
+                    <p id="cameraScannerStatus" class="small text-center text-muted mt-2 mb-0">Starting camera…</p>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Product Variants Modal -->
     <div class="modal fade" id="variantsModal" tabindex="-1">
@@ -215,6 +232,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js"></script>
     <div th:replace="~{fragments/footer :: scripts}"></div>
     
     <script th:inline="javascript">
@@ -381,15 +399,12 @@
             }
         }
         
-        // Handle barcode input explicitly
-        document.getElementById('barcodeInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const barcode = this.value.trim();
-                if (barcode) {
-                    BarcodeScanner.processScan(barcode);
-                    this.value = '';
-                }
-            }
+        document.getElementById('productSearch').addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            document.querySelectorAll('#productGrid .product-card').forEach(card => {
+                const productText = card.dataset.productSearch.toLowerCase();
+                card.classList.toggle('d-none', query.length > 0 && !productText.includes(query));
+            });
         });
         /*]]>*/
     </script>
