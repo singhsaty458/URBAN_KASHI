@@ -77,8 +77,7 @@ const BarcodeScanner = {
 
     async openCameraScanner() {
         if (!navigator.mediaDevices?.getUserMedia) {
-            showToast('This browser does not support camera access.', 'error');
-            return;
+            showToast('Camera access requires a secure HTTPS connection or localhost. Please use chrome://flags to allow this IP.', 'error');
         }
         if (!('BarcodeDetector' in window) && !window.ZXingBrowser) {
             showToast('Camera scanner is still loading. Check the internet connection and try again.', 'error');
@@ -161,3 +160,9 @@ const BarcodeScanner = {
 };
 
 document.addEventListener('DOMContentLoaded', () => BarcodeScanner.init());
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}

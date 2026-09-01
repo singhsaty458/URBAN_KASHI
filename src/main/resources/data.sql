@@ -4,17 +4,17 @@
 -- =============================================
 
 -- Insert sample products
-MERGE INTO products (id, name, hsn_code, gst_rate, brand, category, image_url, active, created_at, updated_at) KEY(id) VALUES
+INSERT INTO products (id, name, hsn_code, gst_rate, brand, category, image_url, active, created_at, updated_at) VALUES
 (1, 'Men''s Classic T-Shirt', '6109', 5.00, 'Urban Kashi', 'T-Shirts', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, 'Men''s Slim Fit Jeans', '6204', 12.00, 'Urban Kashi', 'Jeans', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (3, 'Women''s Kurti', '6204', 5.00, 'Urban Kashi', 'Ethnic Wear', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (4, 'Men''s Formal Shirt', '6205', 5.00, 'Urban Kashi', 'Shirts', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (5, 'Women''s Designer Saree', '5407', 5.00, 'Urban Kashi', 'Ethnic Wear', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6, 'Unisex Hoodie', '6110', 12.00, 'Urban Kashi', 'Winter Wear', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(6, 'Unisex Hoodie', '6110', 12.00, 'Urban Kashi', 'Winter Wear', null, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample variants (rich matrix for size x color grid)
 -- Product 1: Men's Classic T-Shirt (Rs.499, GST 5%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (1,  1, 'UK001SBK', 'S',  'Black', 499.00, 250.00, 25),
 (2,  1, 'UK001MBK', 'M',  'Black', 499.00, 250.00, 40),
 (3,  1, 'UK001LBK', 'L',  'Black', 499.00, 250.00, 50),
@@ -30,10 +30,10 @@ MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price
 (13, 1, 'UK001SRE', 'S',  'Red',   499.00, 250.00, 10),
 (14, 1, 'UK001MRE', 'M',  'Red',   499.00, 250.00, 25),
 (15, 1, 'UK001LRE', 'L',  'Red',   499.00, 250.00, 30),
-(16, 1, 'UK001XLRE','XL', 'Red',   499.00, 250.00, 15);
+(16, 1, 'UK001XLRE','XL', 'Red',   499.00, 250.00, 15) ON CONFLICT (id) DO NOTHING;
 
 -- Product 2: Men's Slim Fit Jeans (Rs.1299, GST 12%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (17, 2, 'UK00228BL', '28', 'Blue',  1299.00, 650.00, 15),
 (18, 2, 'UK00230BL', '30', 'Blue',  1299.00, 650.00, 25),
 (19, 2, 'UK00232BL', '32', 'Blue',  1299.00, 650.00, 35),
@@ -46,10 +46,10 @@ MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price
 (26, 2, 'UK00236BK', '36', 'Black', 1299.00, 650.00, 15),
 (27, 2, 'UK00230GR', '30', 'Grey',  1299.00, 650.00, 18),
 (28, 2, 'UK00232GR', '32', 'Grey',  1299.00, 650.00, 22),
-(29, 2, 'UK00234GR', '34', 'Grey',  1299.00, 650.00, 20);
+(29, 2, 'UK00234GR', '34', 'Grey',  1299.00, 650.00, 20) ON CONFLICT (id) DO NOTHING;
 
 -- Product 3: Women's Kurti (Rs.799, GST 5%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (30, 3, 'UK003SPI',  'S',  'Pink',   799.00, 400.00, 20),
 (31, 3, 'UK003MPI',  'M',  'Pink',   799.00, 400.00, 30),
 (32, 3, 'UK003LPI',  'L',  'Pink',   799.00, 400.00, 35),
@@ -62,10 +62,10 @@ MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price
 (39, 3, 'UK003MGN',  'M',  'Green',  799.00, 400.00, 28),
 (40, 3, 'UK003LGN',  'L',  'Green',  799.00, 400.00, 32),
 (41, 3, 'UK003SYL',  'S',  'Yellow', 799.00, 400.00, 18),
-(42, 3, 'UK003MYL',  'M',  'Yellow', 799.00, 400.00, 22);
+(42, 3, 'UK003MYL',  'M',  'Yellow', 799.00, 400.00, 22) ON CONFLICT (id) DO NOTHING;
 
 -- Product 4: Men's Formal Shirt (Rs.899, GST 5%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (43, 4, 'UK004SWH',  'S',  'White', 899.00, 450.00, 15),
 (44, 4, 'UK004MWH',  'M',  'White', 899.00, 450.00, 25),
 (45, 4, 'UK004LWH',  'L',  'White', 899.00, 450.00, 30),
@@ -75,17 +75,17 @@ MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price
 (49, 4, 'UK004LBL',  'L',  'Blue',  899.00, 450.00, 28),
 (50, 4, 'UK004XLBL', 'XL', 'Blue',  899.00, 450.00, 18),
 (51, 4, 'UK004MPI',  'M',  'Pink',  899.00, 450.00, 15),
-(52, 4, 'UK004LPI',  'L',  'Pink',  899.00, 450.00, 20);
+(52, 4, 'UK004LPI',  'L',  'Pink',  899.00, 450.00, 20) ON CONFLICT (id) DO NOTHING;
 
 -- Product 5: Women's Designer Saree (Rs.2499, GST 5%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (53, 5, 'UK005FRE', 'FREE', 'Red',   2499.00, 1200.00, 12),
 (54, 5, 'UK005FGN', 'FREE', 'Green', 2499.00, 1200.00, 10),
 (55, 5, 'UK005FBL', 'FREE', 'Blue',  2499.00, 1200.00, 8),
-(56, 5, 'UK005FGO', 'FREE', 'Gold',  2499.00, 1200.00, 5);
+(56, 5, 'UK005FGO', 'FREE', 'Gold',  2499.00, 1200.00, 5) ON CONFLICT (id) DO NOTHING;
 
 -- Product 6: Unisex Hoodie (Rs.1499, GST 12%)
-MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) KEY(id) VALUES
+INSERT INTO product_variants (id, product_id, barcode, size, color, selling_price, cost_price, stock_quantity) VALUES
 (57, 6, 'UK006SBK',  'S',  'Black', 1499.00, 750.00, 15),
 (58, 6, 'UK006MBK',  'M',  'Black', 1499.00, 750.00, 25),
 (59, 6, 'UK006LBK',  'L',  'Black', 1499.00, 750.00, 30),
@@ -96,17 +96,18 @@ MERGE INTO product_variants (id, product_id, barcode, size, color, selling_price
 (64, 6, 'UK006XLGR', 'XL', 'Grey',  1499.00, 750.00, 15),
 (65, 6, 'UK006MNV',  'M',  'Navy',  1499.00, 750.00, 18),
 (66, 6, 'UK006LNV',  'L',  'Navy',  1499.00, 750.00, 22),
-(67, 6, 'UK006XLNV', 'XL', 'Navy',  1499.00, 750.00, 10);
+(67, 6, 'UK006XLNV', 'XL', 'Navy',  1499.00, 750.00, 10) ON CONFLICT (id) DO NOTHING;
 
 -- Insert sample customers
-MERGE INTO customers (id, full_name, phone_number, loyalty_points, credit_balance, created_at) KEY(id) VALUES
+INSERT INTO customers (id, full_name, phone_number, loyalty_points, credit_balance, created_at) VALUES
 (1, 'Rahul Sharma',  '9876543210', 50,  0.00,   CURRENT_TIMESTAMP),
 (2, 'Priya Singh',   '9876543211', 120, 500.00, CURRENT_TIMESTAMP),
 (3, 'Amit Verma',    '9876543212', 30,  0.00,   CURRENT_TIMESTAMP),
 (4, 'Sneha Gupta',   '9876543213', 75,  200.00, CURRENT_TIMESTAMP),
-(5, 'Vikram Patel',  '9876543214', 200, 0.00,   CURRENT_TIMESTAMP);
+(5, 'Vikram Patel',  '9876543214', 200, 0.00,   CURRENT_TIMESTAMP) ON CONFLICT (id) DO NOTHING;
 
 -- Reset auto-increment sequences in H2 database to avoid key collision errors on insert
-ALTER TABLE products ALTER COLUMN id RESTART WITH 100;
-ALTER TABLE product_variants ALTER COLUMN id RESTART WITH 1000;
-ALTER TABLE customers ALTER COLUMN id RESTART WITH 100;
+ALTER SEQUENCE products_id_seq RESTART WITH 100;
+ALTER SEQUENCE product_variants_id_seq RESTART WITH 1000;
+ALTER SEQUENCE customers_id_seq RESTART WITH 100;
+

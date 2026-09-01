@@ -11,4 +11,11 @@ public class ReturnItemRequestDTO {
     @NotNull
     @Positive
     private Integer quantity;
+
+    // --- AUTO-GENERATED EXPLICIT ACCESSORS FOR JAVA 25 ---
+    public Long getInvoiceItemId() { return this.invoiceItemId; }
+    public void setInvoiceItemId(Long invoiceItemId) { this.invoiceItemId = invoiceItemId; }
+    public Integer getQuantity() { return this.quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+
 }

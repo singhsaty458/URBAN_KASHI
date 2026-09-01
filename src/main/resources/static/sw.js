@@ -1,26 +1,29 @@
-const CACHE_NAME = 'urban-kashi-cache-v1';
+const CACHE_NAME = 'uk-pos-cache-v1';
 const urlsToCache = [
   '/',
+  '/pos',
+  '/css/store-style.css',
   '/css/pos-style.css',
-  '/images/icon-192.png',
-  '/images/icon-512.png'
+  '/js/storefront.js',
+  '/js/barcode-scanner.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
 self.addEventListener('fetch', event => {
-  // Network first, fallback to cache
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
   );
 });
-

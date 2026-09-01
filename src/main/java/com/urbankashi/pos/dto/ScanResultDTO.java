@@ -23,4 +23,29 @@ public class ScanResultDTO {
     private BigDecimal gstRate;
     private String hsnCode;
     private String imageUrl;
+
+    // --- AUTO-GENERATED EXPLICIT ACCESSORS FOR JAVA 25 ---
+    public Long getVariantId() { return this.variantId; }
+    public void setVariantId(Long variantId) { this.variantId = variantId; }
+    public String getProductName() { return this.productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+    public String getBrand() { return this.brand; }
+    public void setBrand(String brand) { this.brand = brand; }
+    public String getSize() { return this.size; }
+    public void setSize(String size) { this.size = size; }
+    public String getColor() { return this.color; }
+    public void setColor(String color) { this.color = color; }
+    public String getBarcode() { return this.barcode; }
+    public void setBarcode(String barcode) { this.barcode = barcode; }
+    public BigDecimal getSellingPrice() { return this.sellingPrice; }
+    public void setSellingPrice(BigDecimal sellingPrice) { this.sellingPrice = sellingPrice; }
+    public Integer getStockQuantity() { return this.stockQuantity; }
+    public void setStockQuantity(Integer stockQuantity) { this.stockQuantity = stockQuantity; }
+    public BigDecimal getGstRate() { return this.gstRate; }
+    public void setGstRate(BigDecimal gstRate) { this.gstRate = gstRate; }
+    public String getHsnCode() { return this.hsnCode; }
+    public void setHsnCode(String hsnCode) { this.hsnCode = hsnCode; }
+    public String getImageUrl() { return this.imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
 }

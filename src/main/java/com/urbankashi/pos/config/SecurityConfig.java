@@ -57,9 +57,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(csrfRequestHandler))
+                        .csrfTokenRequestHandler(csrfRequestHandler)
+                        .ignoringRequestMatchers("/api/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/manifest.json", "/sw.js").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/manifest.json", "/sw.js", "/shop", "/shop/**", "/api/checkout", "/api/quickview/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/h2-console/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/inventory/product/delete/**", "/inventory/variant/delete/**").hasRole("ADMIN")
@@ -76,3 +77,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
