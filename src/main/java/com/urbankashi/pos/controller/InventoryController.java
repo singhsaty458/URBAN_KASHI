@@ -115,7 +115,7 @@ public class InventoryController {
             }
             ProductVariant targetVariant = productVariantRepository.findById(variant.getId())
                     .orElseThrow(() -> new RuntimeException("Variant not found"));
-            targetVariant.setBarcode(variant.getBarcode());
+            targetVariant.setBarcode(buildVariantBarcode(variant.getBarcode(), sizes.get(0), colors.get(0), false));
             targetVariant.setSize(sizes.get(0));
             targetVariant.setColor(colors.get(0));
             if (targetVariant.getSku() == null) targetVariant.setSku(apparelService.generateSku(product, sizes.get(0), colors.get(0)));
@@ -142,10 +142,17 @@ public class InventoryController {
     }
 
     private String buildVariantBarcode(String base, String size, String color, boolean multiple) {
-        if (!multiple) return base;
-        String suffix = (size + "-" + color).toUpperCase().replaceAll("[^A-Z0-9]+", "-");
-        String prefix = base == null ? "UK" : base.trim();
-        return (prefix + "-" + suffix).substring(0, Math.min(100, prefix.length() + suffix.length() + 1));
+        if (base != null && !base.trim().isEmpty()) {
+            if (!multiple) return base;
+            String suffix = (size + "-" + color).toUpperCase().replaceAll("[^A-Z0-9]+", "-");
+            String prefix = base.trim();
+            return (prefix + "-" + suffix).substring(0, Math.min(100, prefix.length() + suffix.length() + 1));
+        }
+        
+        // Auto-generate: UK-yyyyMMdd-8digit
+        String dateStr = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        long unique8Digit = (long) (Math.random() * 90000000L) + 10000000L;
+        return "UK-" + dateStr + "-" + unique8Digit;
     }
 
     private void uploadVariantImages(ProductVariant targetVariant, MultipartFile[] imageFiles) {
@@ -197,5 +204,36 @@ public class InventoryController {
     @ResponseBody
     public ProductVariant saveVariantApi(@RequestBody ProductVariant variant) {
         return productVariantRepository.save(variant);
+    }
+
+
+    @PostMapping("/api/variant/{id}/stock")
+    @ResponseBody
+    @org.springframework.transaction.annotation.Transactional
+    public java.util.Map<String, Object> addStockToVariantApi(@PathVariable Long id, @RequestParam int quantity) {
+        ProductVariant variant = productVariantRepository.findById(id).orElseThrow();
+        variant.setStockQuantity(variant.getStockQuantity() + quantity);
+        productVariantRepository.save(variant);
+        return java.util.Map.of("status", "success", "newStock", variant.getStockQuantity());
+    }
+
+    @DeleteMapping("/api/variant/{id}")
+    @ResponseBody
+    @org.springframework.transaction.annotation.Transactional
+    public java.util.Map<String, String> deleteVariantApi(@PathVariable Long id) {
+        invoiceItemRepository.detachVariant(id);
+        productVariantRepository.deleteById(id);
+        return java.util.Collections.singletonMap("status", "success");
+    }
+
+    @PostMapping("/api/variant/bulk-delete")
+    @ResponseBody
+    @org.springframework.transaction.annotation.Transactional
+    public java.util.Map<String, String> bulkDeleteVariantsApi(@RequestBody java.util.List<Long> ids) {
+        for (Long id : ids) {
+            invoiceItemRepository.detachVariant(id);
+            productVariantRepository.deleteById(id);
+        }
+        return java.util.Collections.singletonMap("status", "success");
     }
 }

@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(csrfRequestHandler)
-                        .ignoringRequestMatchers("/api/**"))
+                        .ignoringRequestMatchers("/api/**", "/inventory/api/**"))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/manifest.json", "/sw.js", "/shop", "/shop/**", "/api/checkout", "/api/quickview/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
@@ -77,4 +77,5 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
 
